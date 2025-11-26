@@ -7,23 +7,24 @@ export const Symbol = () => {
   return (
     <>
       <Box sx={{ display: 'flex', flexDirection: 'column'}}>
-        <CardContent sx={{ display: 'flex', flexDirection: "row-reverse"}}>
-          <Typography sx={{fontWeight: 'bold', fontSize: 100}}>
-            The
-          </Typography>
-          <Typography
-            sx={{ color: 'text.secondary', fontSize: 100 }}
-          >
-            Mall
-          </Typography>
-        </CardContent>
-      </Box>
-      <CardMedia
+        <CardContent sx={{ display: 'flex', flexDirection: "row"}}>
+          <CardMedia
         component="img"
         sx={{ width: 200 }}
         image="/src/images/icon.webp"
         alt="Live from space album cover"
       />
+      
+          <Typography sx={{fontWeight: 'bold', fontSize: 100, marginTop: 3}}>
+            The
+          </Typography>
+          <Typography
+            sx={{ color: 'text.secondary', fontSize: 100, marginTop: 3 }}
+          >
+            Mall
+          </Typography>
+        </CardContent>
+      </Box>
 
 
     </>

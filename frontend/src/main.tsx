@@ -8,9 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <main className="text-center">
-      <div>  provider
         <RouterProvider router={router} />
-      </div>
     </main>
   </React.StrictMode>
 );
