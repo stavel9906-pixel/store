@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Card,
   CardMedia,
@@ -8,7 +9,8 @@ import {
   FormControlLabel,
   IconButton,
   InputAdornment,
-    Link,
+  Link,
+  Snackbar,
   TextField,
 } from "@mui/material";
 import { Symbol } from "../components/Symbol";
@@ -17,7 +19,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import PersonIcon from "@mui/icons-material/Person";
-import { GoogleOAuthProvider, GoogleLogin, useGoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 
 export const Login = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -30,6 +32,17 @@ export const Login = () => {
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [confirmedPassword, setConfirmedPassword] = useState("");
   const [unmatchPasswords, setUnMatchPasswords] = useState(false);
+  const [isGoogleLog, setIsGoogleLog] = useState(true);
+
+  const login = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      setIsGoogleLog(true);
+      console.log("Success!", tokenResponse);
+    },
+    onError: () => {
+      setIsGoogleLog(false);
+    },
+  });
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -45,17 +58,14 @@ export const Login = () => {
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(emailValue);
     setEmailError(!isEmailValid);
     const passwordsMatching = !isLogin && passwordValue === confirmedPassword;
-    console.log(passwordsMatching)
+    console.log(passwordsMatching);
     setUnMatchPasswords(!passwordsMatching);
     if (isNameValid && isPasswordValid && isEmailValid && passwordsMatching) {
       console.log("valid");
     }
   };
 
-  const login = useGoogleLogin({
-        onSuccess: (codeResponse) => setEmailValue(codeResponse),
-        onError: (error) => console.log('Login Failed:', error)
-    });
+  
 
   return (
     <>
@@ -158,30 +168,32 @@ export const Login = () => {
                 disableUnderline
               >
                 <TextField
-                 value={confirmedPassword}
-                onChange={(event) => setConfirmedPassword(event.target.value)}
-                error={unmatchPasswords}
-                helperText={unmatchPasswords ? "The passwords are not identical" : ""}
+                  value={confirmedPassword}
+                  onChange={(event) => setConfirmedPassword(event.target.value)}
+                  error={unmatchPasswords}
+                  helperText={
+                    unmatchPasswords ? "The passwords are not identical" : ""
+                  }
                   id="password"
                   type={showPassword ? "text" : "password"}
                   label="Confirm password"
                   InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label={
-                          showPassword
-                            ? "hide the password"
-                            : "display the password"
-                        }
-                        onClick={handleClickShowPassword}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label={
+                            showPassword
+                              ? "hide the password"
+                              : "display the password"
+                          }
+                          onClick={handleClickShowPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </FormControl>
             </div>
@@ -219,8 +231,11 @@ export const Login = () => {
         sx={{ width: 700 }}
         className="mx-auto mb-4"
       />
-      
-      <button  className="btn btn-lg d-flex mx-auto b-2 btn-outline-dark" onClick={() => login()}>
+
+      <button
+        className="btn btn-lg d-flex mx-auto b-2 btn-outline-dark"
+        onClick={() => login()}
+      >
         <CardMedia
           component="img"
           sx={{ width: 30 }}
@@ -229,7 +244,15 @@ export const Login = () => {
         />
         <span>Sign in with Google</span>
       </button>
-      <br/>
+      <Snackbar
+        open={!isGoogleLog}
+        onClose={() => setIsGoogleLog(true)}
+        autoHideDuration={3000}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity="error">Sign In With Google Failed</Alert>
+      </Snackbar>
+      <br />
     </>
   );
 };

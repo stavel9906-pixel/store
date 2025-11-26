@@ -1,8 +1,14 @@
-import { StatusCodes } from "http-status-codes";
-import { TabascocruisesError } from "./tabascocruisesError";
+import { HttpException, HttpStatus } from '@nestjs/common';
 
-export class UnauthorizedError extends TabascocruisesError {
+export class UnauthorizedError extends HttpException {
   constructor(details: string) {
-    super(StatusCodes.UNAUTHORIZED, "Unauthorized", details);
+    super(
+      {
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: details,
+        details,
+      },
+      HttpStatus.UNAUTHORIZED
+    );
   }
-} 
+}
