@@ -21,7 +21,29 @@ export class UsersController {
     try {
       return this.usersService.register(userName, email, password);
     } catch (err) {
-      throw new BadRequestException("Registration failed");
+      if (err instanceof UnauthorizedError) {
+        throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
+      }
+      throw new HttpException(
+        "Error In Register",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Post("signin")
+  async googleSignIn(@Body() user: User) {
+    const { userName, email, password } = user;
+    try {
+      return this.usersService.googleSignIn(userName, email);
+    } catch (err) {
+      if (err instanceof UnauthorizedError) {
+        throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
+      }
+      throw new HttpException(
+        "Error in signing in with google",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -39,7 +61,7 @@ export class UsersController {
         throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
       }
       throw new HttpException(
-        "Internal server error",
+        "Error while logging in",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

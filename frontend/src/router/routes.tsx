@@ -1,4 +1,4 @@
-import { Login } from "../views/Home";
+import { Login } from "../views/Login/Login";
 
 export interface Page {
   path: string;

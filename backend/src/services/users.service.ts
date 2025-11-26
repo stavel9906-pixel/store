@@ -5,6 +5,7 @@ import { UsersRole } from "src/enums/userRole.enum";
 import { UnauthorizedError } from "src/errors/unauthorizedError";
 import { Repository } from "typeorm";
 import * as bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 @Injectable()
 export class UsersService {
@@ -30,11 +31,7 @@ export class UsersService {
       throw new UnauthorizedError("User already exists");
     }
 
-    let hashedPassword: string | undefined = undefined;
-    if (password && password !== "") {
-      hashedPassword = await bcrypt.hash(password, 10);
-    }
-    console.info("hereeee " + hashedPassword)
+    const  hashedPassword = await bcrypt.hash(password, 10);
     // Create new user
     const user = this.usersRepository.create({
       userName: name,
@@ -44,51 +41,84 @@ export class UsersService {
     });
 
     await this.usersRepository.save(user);
+    const token = jwt.sign(
+      { name: user.userName, role: user.role },
+      process.env.SECRET_KEY,
+      { expiresIn: "1h" }
+    );
 
     console.info(`User registered: ${email}`);
 
     return {
       message: "User registered successfully",
-      user: {
-        userName: user.userName,
-        email: user.email,
-        role: user.role,
-      },
+      token,
     };
   }
 
   async login(email: string, password: string | undefined): Promise<any> {
     // Find user by email
     const user = await this.usersRepository.findOne({ where: { email } });
+
     if (!user) {
       throw new UnauthorizedError("there is no user with this email register");
     }
 
-    if (user.password) {
-      if (!bcrypt.compare(password, user.password)) {
+    const isValid = await bcrypt.compare(password || "", user.password || "");
+      if (!isValid) {
         //!password לא נחשב כי הוא כנראה נכנס הפעם מגוגל ואם לא היה מכניס סיסמא לא היה מגיע לפה בכלל
-        throw new UnauthorizedError("Invalid password");
-      }
-    } else {
-      // משתמש ללא סיסמה = כניסה דרך Google
-      if (!password) {
-        console.info(`Google login for user: ${email}`);
-      } else {
-        throw new UnauthorizedError(
-          "User registered via Google, password not exist"
-        );
-      }
-    }
+        throw new UnauthorizedError("Invalid Password For This User");
+      } 
+    // } else {
+    //   // משתמש ללא סיסמה = כניסה דרך Google
+    //   if (!password) {
+    //     console.info(`Google login for user: ${email}`);
+    //   } else {
+    //     throw new UnauthorizedError(
+    //       "User registered via Google, password not exist"
+    //     );
+    //   }
 
+    const token = jwt.sign(
+      { name: user.userName, role: user.role },
+      process.env.SECRET_KEY,
+      { expiresIn: "1h" }
+    );
     console.info(`User logged in: ${email}`);
 
     return {
       message: "Login successful",
-      user: {
-        userName: user.userName,
-        email: user.email,
-        role: user.role,
-      },
+      token,
+      // user: {
+      //   userName: user.userName,
+      //   email: user.email,
+      //   role: user.role,
+      // },
+    };
+  }
+
+  async googleSignIn(email: string, userName:string): Promise<any> {
+    // Find user by email
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      const newUser = this.usersRepository.create({
+      userName,
+      email,
+      role: UsersRole.USER,
+    });
+
+    await this.usersRepository.save(newUser); 
+    }
+
+    const token = jwt.sign(
+      { name: userName, role: !user ? UsersRole.USER : user.role },
+      process.env.SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+    console.info(`User signed in with google: ${email}`);
+
+    return {
+      message: "Sign in successful",
+      token,
     };
   }
 }

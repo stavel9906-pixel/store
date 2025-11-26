@@ -13,13 +13,17 @@ import {
   Snackbar,
   TextField,
 } from "@mui/material";
-import { Symbol } from "../components/Symbol";
+import { Symbol } from "../../components/Symbol";
 import MarkunreadIcon from "@mui/icons-material/Markunread";
 import LockIcon from "@mui/icons-material/Lock";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useGoogleLogin } from "@react-oauth/google";
+import usersApi from "../../api/usersApi";
+import { AuthResponse } from "../../utils/types";
+import { AxiosError, AxiosResponse } from "axios";
+import { getGoogleUser } from "./useGetGoogleSignin";
 
 export const Login = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -32,17 +36,51 @@ export const Login = () => {
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [confirmedPassword, setConfirmedPassword] = useState("");
   const [unmatchPasswords, setUnMatchPasswords] = useState(false);
-  const [isGoogleLog, setIsGoogleLog] = useState(true);
+  const [errorAlert, setErrorAlert] = useState(false);
+  const [errorDetails, setErrorDetails] = useState("");
+  const toRemember = useRef<HTMLInputElement>(null);
 
   const login = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      setIsGoogleLog(true);
-      console.log("Success!", tokenResponse);
+    onSuccess: async (tokenResponse) => {
+      const googleUser = await getGoogleUser(tokenResponse.access_token);
+      handleLoginRegister(googleUser.name, googleUser.email);
     },
     onError: () => {
-      setIsGoogleLog(false);
+      setErrorAlert(true);
+      setErrorDetails("Signing In With Google Failed");
     },
   });
+
+  const handleLoginRegister = async (
+    name: string | undefined,
+    email: string,
+    password?: string
+  ) => {
+    let response: AxiosResponse<AuthResponse>;
+    try {
+      if (!password) {
+        response = await usersApi.users().signIn(email, name!);
+      } else if (!name) {
+        //login
+        response = await usersApi.users().login(email, password);
+        console.log("login");
+      } else {
+        response = await usersApi.users().register(name, email, password);
+      }
+
+      const token = response?.data.token;
+
+      toRemember.current?.checked
+        ? localStorage.setItem("token", token)
+        : sessionStorage.setItem("token", token);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message: string }>;
+      setErrorAlert(true);
+      setErrorDetails(
+        error.response?.data.message || "An Error Occured Try Again"
+      );
+    }
+  };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -60,12 +98,18 @@ export const Login = () => {
     const passwordsMatching = !isLogin && passwordValue === confirmedPassword;
     console.log(passwordsMatching);
     setUnMatchPasswords(!passwordsMatching);
-    if (isNameValid && isPasswordValid && isEmailValid && passwordsMatching) {
-      console.log("valid");
+    if (
+      !isLogin &&
+      isNameValid &&
+      isPasswordValid &&
+      isEmailValid &&
+      passwordsMatching
+    ) {
+      handleLoginRegister(nameValue, emailValue, passwordValue);
+    } else if (isLogin && isEmailValid && isPasswordValid) {
+      handleLoginRegister(undefined, emailValue, passwordValue);
     }
   };
-
-  
 
   return (
     <>
@@ -123,7 +167,6 @@ export const Login = () => {
             <FormControl
               variant="outlined"
               className="col-md-6"
-              disableUnderline
             >
               <TextField
                 value={passwordValue}
@@ -165,7 +208,6 @@ export const Login = () => {
               <FormControl
                 variant="outlined"
                 className="col-md-6"
-                disableUnderline
               >
                 <TextField
                   value={confirmedPassword}
@@ -211,7 +253,7 @@ export const Login = () => {
           </Link>
         </div>
         <FormControlLabel
-          control={<Checkbox />}
+          control={<Checkbox inputRef={toRemember} />}
           label="Remember me"
         />
         <br />
@@ -245,12 +287,12 @@ export const Login = () => {
         <span>Sign in with Google</span>
       </button>
       <Snackbar
-        open={!isGoogleLog}
-        onClose={() => setIsGoogleLog(true)}
+        open={errorAlert}
+        onClose={() => setErrorAlert(false)}
         autoHideDuration={3000}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert severity="error">Sign In With Google Failed</Alert>
+        <Alert severity="error">{errorDetails}</Alert>
       </Snackbar>
       <br />
     </>
