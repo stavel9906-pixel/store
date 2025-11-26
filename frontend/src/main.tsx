@@ -1,17 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
-import { SelectedConvoyProvider } from "./context/SelectedConvoy";
-import "bootstrap/dist/js/bootstrap.js";
-import "bootstrap/dist/css/bootstrap.css";
 import { router } from "./router";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <main className="text-center">
-      <SelectedConvoyProvider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <main className="text-center">
         <RouterProvider router={router} />
-      </SelectedConvoyProvider>
-    </main>
+      </main>
+    </GoogleOAuthProvider>
   </React.StrictMode>
 );

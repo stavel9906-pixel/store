@@ -6,18 +6,18 @@ export class Product {
   @PrimaryGeneratedColumn()
   productId!: number;
 
-  @Column({ type: 'text' })
+  @Column()
   productName!: string;
 
   @ManyToOne(() => ProductType, (type) => type.products)
   productType!: ProductType;
 
-  @Column({ type: 'numeric' })
+  @Column()
   price!: number;
 
-  @Column({ type: 'text', nullable: true })
+  @Column()
   description?: string;
 
-  @Column({ type: 'text', nullable: true })
-  imageUrl?: string;
+  @Column()
+  imageUrl!: string;
 }

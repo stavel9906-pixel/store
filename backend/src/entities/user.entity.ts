@@ -4,16 +4,16 @@ import { UsersRole } from 'src/enums/userRole.enum';
 
 @Entity({ name: 'users' })
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'user_id' })
   userId!: number;
 
-  @Column({ type: 'text' })
+  @Column({ name: 'user_name' })
   userName!: string;
 
-  @Column({ type: 'text', nullable: true })
-  password!: string;
+  @Column({ type: 'text'})
+  password?: string;  // ? for cases when the sign in from google
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text'})
   email!: string;
 
   @Column({ type: 'enum', enum: UsersRole, default: UsersRole.USER })

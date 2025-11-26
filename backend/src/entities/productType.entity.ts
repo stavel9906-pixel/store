@@ -6,9 +6,9 @@ export class ProductType {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: 'text' })
+  @Column()
   name!: string;
 
   @OneToMany(() => Product, (product) => product.productType)
-  products!: Product[];
+  products?: Product[];
 }
