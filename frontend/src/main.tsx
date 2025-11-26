@@ -1,17 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
-import { SelectedConvoyProvider } from "./context/SelectedConvoy";
-import "bootstrap/dist/js/bootstrap.js";
-import "bootstrap/dist/css/bootstrap.css";
 import { router } from "./router";
+
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <main className="text-center">
-      <SelectedConvoyProvider>
+      <div>  provider
         <RouterProvider router={router} />
-      </SelectedConvoyProvider>
+      </div>
     </main>
   </React.StrictMode>
 );
