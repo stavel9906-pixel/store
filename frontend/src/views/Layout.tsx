@@ -35,6 +35,7 @@ const Layout: FC = () => {
           slots={{
             appTitle: SmallerSymbol,
           }}
+          sx={{backgroundColor: "#e1f9fdff"}}
         >
           {/* כאן כל דף אחר נטען */}
           <Outlet />
