@@ -4,6 +4,14 @@ export enum UsersRole {
   USER = 'user',
 }
 
+export enum PurchaseStatus {
+  PENDING = 'pending',
+  PAID = 'paid',
+  CANCELLED = 'cancelled',
+  DELIVERED = 'delivered',
+  SHIPPED = 'shipped',
+}
+
 export interface User {
   userName: string;
   email: string;

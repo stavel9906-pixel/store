@@ -14,12 +14,21 @@ export class Purchase {
   @Column({ type: 'enum', enum: PurchaseStatus, default: PurchaseStatus.PENDING })
   status!: PurchaseStatus;
 
-  @CreateDateColumn()
+  @CreateDateColumn({name: "craeted_at"})
   createdAt!: Date;
 
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  // @UpdateDateColumn({name: "updated_at"})
+  // updatedAt!: Date;
 
   @OneToMany(() => PurchaseProduct, (purchaseProduct) => purchaseProduct.purchase)
   purchaseProducts!: PurchaseProduct[];
+
+  @Column()
+  deliverTime?: Date;
+
+  @Column()
+  address?: string;
+
+  @Column()
+  phone?: string;
 }

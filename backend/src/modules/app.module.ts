@@ -7,6 +7,7 @@ import { Product } from "src/entities/product.entity";
 import { ProductType } from "src/entities/productType.entity";
 import { PurchaseProduct } from "src/entities/purchaseProduct.entity";
 import { ProductsModule } from "./products.module";
+import { ProductsTypeModule } from "./productsType.module";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ProductsModule } from "./products.module";
     }),
     UsersModule,
     ProductsModule,
+    ProductsTypeModule,
   ],
 })
 export class AppModule {}
