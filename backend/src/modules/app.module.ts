@@ -6,6 +6,7 @@ import { Purchase } from "src/entities/purchase.entity";
 import { Product } from "src/entities/product.entity";
 import { ProductType } from "src/entities/productType.entity";
 import { PurchaseProduct } from "src/entities/purchaseProduct.entity";
+import { ProductsModule } from "./products.module";
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PurchaseProduct } from "src/entities/purchaseProduct.entity";
       dropSchema: false,
     }),
     UsersModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}

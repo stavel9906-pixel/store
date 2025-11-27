@@ -1,5 +1,5 @@
 {
-  "name": "sheleg",
+  "name": "store",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,6 +13,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.5",
+    "@mui/joy": "^5.0.0-beta.52",
     "@mui/material": "^7.3.5",
     "@react-oauth/google": "^0.12.2",
     "@toolpad/core": "^0.16.0",

@@ -27,12 +27,12 @@ export class UsersService {
     const existingUser = await this.usersRepository.findOne({
       where: { email },
     });
-    if (existingUser) {
+    if (existingUser && existingUser.password) {
       throw new UnauthorizedError("User already exists");
-    }
+    } 
 
-    const  hashedPassword = await bcrypt.hash(password, 10);
-    // Create new user
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = this.usersRepository.create({
       userName: name,
       email,
@@ -40,13 +40,23 @@ export class UsersService {
       role: UsersRole.USER,
     });
 
-    await this.usersRepository.save(user);
+    if (existingUser) {
+      await this.usersRepository
+        .createQueryBuilder()
+        .update(User)
+        .set({ password: hashedPassword })
+        .where("email = :email", { email })
+        .execute();
+    } else {
+      await this.usersRepository.save(user);
+    }
+
     const token = jwt.sign(
       { name: user.userName, role: user.role },
       process.env.SECRET_KEY,
       { expiresIn: "1h" }
     );
-
+    // Create new user
     console.info(`User registered: ${email}`);
 
     return {
@@ -64,10 +74,10 @@ export class UsersService {
     }
 
     const isValid = await bcrypt.compare(password || "", user.password || "");
-      if (!isValid) {
-        //!password לא נחשב כי הוא כנראה נכנס הפעם מגוגל ואם לא היה מכניס סיסמא לא היה מגיע לפה בכלל
-        throw new UnauthorizedError("Invalid Password For This User");
-      } 
+    if (!isValid) {
+      //!password לא נחשב כי הוא כנראה נכנס הפעם מגוגל ואם לא היה מכניס סיסמא לא היה מגיע לפה בכלל
+      throw new UnauthorizedError("Invalid Password For This User");
+    }
     // } else {
     //   // משתמש ללא סיסמה = כניסה דרך Google
     //   if (!password) {
@@ -96,17 +106,17 @@ export class UsersService {
     };
   }
 
-  async googleSignIn(email: string, userName:string): Promise<any> {
+  async googleSignIn(email: string, userName: string): Promise<any> {
     // Find user by email
     const user = await this.usersRepository.findOne({ where: { email } });
     if (!user) {
       const newUser = this.usersRepository.create({
-      userName,
-      email,
-      role: UsersRole.USER,
-    });
+        userName,
+        email,
+        role: UsersRole.USER,
+      });
 
-    await this.usersRepository.save(newUser); 
+      await this.usersRepository.save(newUser);
     }
 
     const token = jwt.sign(

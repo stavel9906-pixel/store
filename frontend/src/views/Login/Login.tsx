@@ -13,17 +13,18 @@ import {
   Snackbar,
   TextField,
 } from "@mui/material";
-import { Symbol } from "../../components/Symbol";
+import { Symbol } from "./Symbol";
 import MarkunreadIcon from "@mui/icons-material/Markunread";
 import LockIcon from "@mui/icons-material/Lock";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useGoogleLogin } from "@react-oauth/google";
 import usersApi from "../../api/usersApi";
 import { AuthResponse } from "../../utils/types";
 import { AxiosError, AxiosResponse } from "axios";
-import { getGoogleUser } from "./useGetGoogleSignin";
+import { getGoogleUser } from "./getGoogleSignin";
+import { useNavigate } from "react-router";
 
 export const Login = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -39,6 +40,13 @@ export const Login = () => {
   const [errorAlert, setErrorAlert] = useState(false);
   const [errorDetails, setErrorDetails] = useState("");
   const toRemember = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (localStorage.getItem("token") || sessionStorage.getItem("token")) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -63,7 +71,6 @@ export const Login = () => {
       } else if (!name) {
         //login
         response = await usersApi.users().login(email, password);
-        console.log("login");
       } else {
         response = await usersApi.users().register(name, email, password);
       }
@@ -73,6 +80,8 @@ export const Login = () => {
       toRemember.current?.checked
         ? localStorage.setItem("token", token)
         : sessionStorage.setItem("token", token);
+
+      navigate("/dashboard");
     } catch (err: unknown) {
       const error = err as AxiosError<{ message: string }>;
       setErrorAlert(true);

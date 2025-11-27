@@ -1,23 +1,21 @@
+import { Home } from "../views/Home";
 import { Login } from "../views/Login/Login";
 
 export interface Page {
   path: string;
   element: JSX.Element;
   name: string;
-  isShown: boolean;
 }
 
 export const routes: Page[] = [
   {
-    path: "/",
+    path: "/login",
     element: <Login />,
     name: "התחברות",
-    isShown: true,
   },
   {
-    path: "/other",
-    element: <h1>other</h1>,
-    name: "מפה",
-    isShown: true,
+    path: "/dashboard",
+    element: <Home/>,
+    name: "dashboard",
   },
 ];
