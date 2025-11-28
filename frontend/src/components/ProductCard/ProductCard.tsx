@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Product } from "../../utils/types";
 import {
   Card,
@@ -7,14 +7,25 @@ import {
   Typography,
   Button,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
+import React from "react";
+import { useChangeAmount } from "../../hooks/useChangeAmount";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export const ProductCard: FC<ProductCardProps> = ({ product }) => {
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   return (
     <Card sx={{ width: 320, m: 2, position: "relative", flexWrap: "wrap" }}>
       <IconButton
@@ -25,6 +36,7 @@ export const ProductCard: FC<ProductCardProps> = ({ product }) => {
           right: 8,
           backgroundColor: "#008cffff",
         }}
+        onClick={useChangeAmount(true, product.productId)}
       >
         <AddShoppingCartIcon />
       </IconButton>
@@ -53,10 +65,36 @@ export const ProductCard: FC<ProductCardProps> = ({ product }) => {
           variant="contained"
           color="primary"
           sx={{ mt: 1 }}
+          onClick={handleOpen}
         >
           Details
         </Button>
       </CardContent>
+      <React.Fragment>
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {product.productName}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {product.description}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleClose}
+              color="secondary"
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </React.Fragment>
     </Card>
   );
 };

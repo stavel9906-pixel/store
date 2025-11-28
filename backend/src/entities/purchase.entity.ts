@@ -1,29 +1,46 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { User } from './user.entity';
-import { PurchaseProduct } from './purchaseProduct.entity';
-import { PurchaseStatus } from 'src/enums/purchaseStatus.enum';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  JoinColumn,
+} from "typeorm";
+import { User } from "./user.entity";
+import { PurchaseProduct } from "./purchaseProduct.entity";
+import { PurchaseStatus } from "src/enums/purchaseStatus.enum";
 
-@Entity({ name: 'purchases' })
+@Entity({ name: "purchases" })
 export class Purchase {
   @PrimaryGeneratedColumn()
   id!: number;
 
   @ManyToOne(() => User, (user) => user.purchases)
-  user!: User;
+  @JoinColumn({ name: "user_id" })
+  user: User;
 
-  @Column({ type: 'enum', enum: PurchaseStatus, default: PurchaseStatus.PENDING })
+  @Column({
+    type: "enum",
+    enum: PurchaseStatus,
+    default: PurchaseStatus.PENDING,
+  })
   status!: PurchaseStatus;
 
-  @CreateDateColumn({name: "craeted_at"})
+  @CreateDateColumn({ name: "created_at" })
   createdAt!: Date;
 
   // @UpdateDateColumn({name: "updated_at"})
   // updatedAt!: Date;
 
-  @OneToMany(() => PurchaseProduct, (purchaseProduct) => purchaseProduct.purchase)
+  @OneToMany(
+    () => PurchaseProduct,
+    (purchaseProduct) => purchaseProduct.purchase
+  )
   purchaseProducts!: PurchaseProduct[];
 
-  @Column()
+  @Column({ name: "deliver_time" })
   deliverTime?: Date;
 
   @Column()

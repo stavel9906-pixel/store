@@ -1,14 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Product } from 'src/entities/product.entity';
-import { v2 as cloudinary } from 'cloudinary';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Product } from "src/entities/product.entity";
+import { v2 as cloudinary } from "cloudinary";
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
-    private productRepo: Repository<Product>,
+    private productRepo: Repository<Product>
   ) {
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -22,17 +22,29 @@ export class ProductsService {
     const uploadResult = await cloudinary.uploader.upload(fileUrl, {
       public_id: `product_${id}`,
       overwrite: true,
-      resource_type: 'image',
+      resource_type: "image",
     });
 
-    const result = await this.productRepo.update(id, { imageUrl: uploadResult.secure_url });
-    if (result.affected === 0) throw new NotFoundException('Product not found');
+    const result = await this.productRepo.update(id, {
+      imageUrl: uploadResult.secure_url,
+    });
+    if (result.affected === 0) throw new NotFoundException("Product not found");
 
-    return { message: 'Image uploaded and URL saved', imageUrl: uploadResult.secure_url };
+    return {
+      message: "Image uploaded and URL saved",
+      imageUrl: uploadResult.secure_url,
+    };
   }
 
   // מחזיר את כל המוצרים כולל URL
   async getAllProducts() {
-    return await this.productRepo.find({ relations: ['productType'] });
+    return await this.productRepo.find({ relations: ["productType"] });
+  }
+
+  async getProductById(productId: number) {
+    return await this.productRepo.findOne({
+      where: { productId },
+      relations: ["productType"],
+    });
   }
 }

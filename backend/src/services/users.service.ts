@@ -52,9 +52,8 @@ export class UsersService {
     }
 
     const token = jwt.sign(
-      { name: user.userName, role: user.role },
-      process.env.SECRET_KEY,
-      { expiresIn: "1h" }
+      { name: user.userName, role: user.role, id: user.userId },
+      process.env.SECRET_KEY
     );
     // Create new user
     console.info(`User registered: ${email}`);
@@ -89,9 +88,8 @@ export class UsersService {
     //   }
 
     const token = jwt.sign(
-      { name: user.userName, role: user.role },
-      process.env.SECRET_KEY,
-      { expiresIn: "1h" }
+      { name: user.userName, role: user.role, id: user.userId },
+      process.env.SECRET_KEY
     );
     console.info(`User logged in: ${email}`);
 
@@ -120,9 +118,8 @@ export class UsersService {
     }
 
     const token = jwt.sign(
-      { name: userName, role: !user ? UsersRole.USER : user.role },
-      process.env.SECRET_KEY,
-      { expiresIn: "1h" }
+      { name: userName, role: !user ? UsersRole.USER : user.role, id: user?.userId },
+      process.env.SECRET_KEY
     );
     console.info(`User signed in with google: ${email}`);
 
