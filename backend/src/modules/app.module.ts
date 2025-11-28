@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { UsersModule } from './users.module';
+import { UsersModule } from "./users.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "src/entities/user.entity";
 import { Purchase } from "src/entities/purchase.entity";
@@ -9,6 +9,9 @@ import { PurchaseProduct } from "src/entities/purchaseProduct.entity";
 import { ProductsModule } from "./products.module";
 import { ProductsTypeModule } from "./productsType.module";
 import { PurchasesModule } from "./purchases.module";
+import { PurchaseAddress } from "src/entities/purchaseAddress.entity";
+import { City } from "src/entities/city.entity";
+import { Country } from "src/entities/country.entity";
 
 @Module({
   imports: [
@@ -20,7 +23,16 @@ import { PurchasesModule } from "./purchases.module";
       username: process.env.DB_USERNAME || "postgres",
       password: process.env.DB_PASSWORD || "12345678",
       database: process.env.DB_DATABASE || "postgres",
-      entities: [User, Purchase, Product, ProductType, PurchaseProduct],
+      entities: [
+        User,
+        Purchase,
+        Product,
+        ProductType,
+        PurchaseProduct,
+        PurchaseAddress,
+        City,
+        Country,
+      ],
       logging: true,
       synchronize: false,
       dropSchema: false,
@@ -28,7 +40,7 @@ import { PurchasesModule } from "./purchases.module";
     UsersModule,
     ProductsModule,
     ProductsTypeModule,
-    PurchasesModule
+    PurchasesModule,
   ],
 })
 export class AppModule {}

@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import { Purchase } from "../utils/types";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/",
@@ -9,7 +10,7 @@ export default {
     return {
       increaseProductAmount: (
         productId: number,
-        userId: number
+        orderId: number
       ): Promise<AxiosResponse<void>> =>
         axiosInstance.post(
           `/purchases/products/increase`,
@@ -17,13 +18,13 @@ export default {
           {
             params: {
               productId,
-              userId,
+              orderId,
             },
           }
         ),
       decreaseProductAmount: (
         productId: number,
-        userId: number
+        orderId: number
       ): Promise<AxiosResponse<void>> =>
         axiosInstance.post(
           `/purchases/products/decrease`,
@@ -31,12 +32,12 @@ export default {
           {
             params: {
               productId,
-              userId,
+              orderId,
             },
           }
         ),
 
-      create: (id: number): Promise<AxiosResponse<void>> =>
+      create: (id: number): Promise<AxiosResponse<number>> =>
         axiosInstance.post(
           `/purchases`,
           {},
@@ -46,15 +47,31 @@ export default {
             },
           }
         ),
-        getByUser: (id: number): Promise<AxiosResponse<number | null>> =>
-        axiosInstance.get(
-          `/purchases`,
-          {
-            params: {
-              id,
-            },
-          }
-        ),
+      getByUser: (id: number): Promise<AxiosResponse<number | null>> =>
+        axiosInstance.get(`/purchases/pending`, {
+          params: {
+            id,
+          },
+        }),
+      getOrderTotalAmount: (
+        id: number
+      ): Promise<AxiosResponse<number | null>> =>
+        axiosInstance.get(`/purchases/products/total`, {
+          params: {
+            id,
+          },
+        }),
+      getOrderById: (id: number | null): Promise<AxiosResponse<Purchase>> =>
+        axiosInstance.get(`/purchases/id`, {
+          params: {
+            id,
+          },
+        }),
+      removeProductFromPurchase: (
+        purchaseId: number,
+        productId: number
+      ): Promise<AxiosResponse<void>> =>
+        axiosInstance.delete(`/purchases/${purchaseId}/product/${productId}`),
     };
   },
 };

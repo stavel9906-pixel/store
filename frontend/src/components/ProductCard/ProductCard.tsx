@@ -35,10 +35,11 @@ export const ProductCard: FC<ProductCardProps> = ({ product }) => {
           top: 8,
           right: 8,
           backgroundColor: "#008cffff",
+          color: "white",
         }}
         onClick={useChangeAmount(true, product.productId)}
       >
-        <AddShoppingCartIcon />
+        <AddShoppingCartIcon/>
       </IconButton>
       <CardMedia
         component="img"

@@ -14,7 +14,7 @@ export const useGetOrderByUser = () => {
           const fetchedOrder = (
             await purchasesApi.purchases().getByUser(user?.id)
           ).data;
-          setOrderId(fetchedOrder);
+          setOrderId(fetchedOrder || null);
         }
       } catch (error: unknown) {
         Swal.fire(

@@ -11,6 +11,7 @@ import {
 import { User } from "./user.entity";
 import { PurchaseProduct } from "./purchaseProduct.entity";
 import { PurchaseStatus } from "src/enums/purchaseStatus.enum";
+import { PurchaseAddress } from "./purchaseAddress.entity";
 
 @Entity({ name: "purchases" })
 export class Purchase {
@@ -43,9 +44,6 @@ export class Purchase {
   @Column({ name: "deliver_time" })
   deliverTime?: Date;
 
-  @Column()
-  address?: string;
-
-  @Column()
-  phone?: string;
+  @OneToMany(() => PurchaseAddress, (address) => address.purchase)
+  addresses: PurchaseAddress[];
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Product } from "src/entities/product.entity";
@@ -19,7 +19,6 @@ export class PurchasesService {
   ) {}
 
   async getPendingPurchase(id: number): Promise<Purchase | null> {
-    console.log("id: ", id)
     const purchase = await this.purchaseRepo.findOne({
       where: {
         user: { userId: id },
@@ -28,9 +27,51 @@ export class PurchasesService {
       relations: ["purchaseProducts", "user"], // הוספת הקשרים למשתמש ולמוצרים
     });
 
-    console.log("Found Purchase:", purchase); // הדפסת התוצאה
+    return purchase;
+  }
+
+  async getOrderById(id: number): Promise<Purchase | null> {
+    const purchase = await this.purchaseRepo.findOne({
+      where: { id },
+      relations: [
+        "purchaseProducts", // כל ה־PurchaseProduct
+        "purchaseProducts.product", // טעינת המידע המלא של כל Product
+        "purchaseProducts.product.productType", // אם רוצים גם סוג מוצר
+      ],
+    });
 
     return purchase;
+  }
+
+  async deleteProduct(purchaseId: number, productId: number) {
+    try {
+      console.log("purchase ", purchaseId);
+      console.log("product ", productId)
+      const result = await this.purchaseProductRepo.delete({
+        purchase: { id: purchaseId },
+        product: { productId: productId },
+      });
+
+      if (result.affected === 0) {
+        throw new NotFoundException(
+          `Product with ID ${productId} not found in purchase ${purchaseId}`
+        );
+      }
+
+      return { message: "Product removed successfully" };
+    } catch (error) {
+      throw new InternalServerErrorException("Failed to remove product");
+    }
+  }
+
+  async getTotalAmountPurchase(id: number): Promise<number> {
+    const totalAmount = await this.purchaseProductRepo
+      .createQueryBuilder("purchaseProducts")
+      .select("SUM(purchaseProducts.amount)", "total")
+      .where("purchaseProducts.purchase_id = :purchaseId", { purchaseId: id })
+      .getRawOne();
+
+    return totalAmount.total ?? 0;
   }
 
   async createPurchase(userId: number) {
@@ -50,24 +91,18 @@ export class PurchasesService {
   }
 
   async addProductToPurchase(
-    userId: number,
+    orderId: number,
     productId: number,
     amount: number
   ) {
-    const purchase = await this.getPendingPurchase(userId);
-
-    if (!purchase) {
-      throw new NotFoundException("Pending purchase not found");
-    }
-
     // האם המוצר כבר קיים בהזמנה?
-    let purchaseProduct = await this.purchaseProductRepo.findOne({
-      where: {
-        purchase: { id: purchase.id },
-        product: { productId },
-      },
-      relations: ["product", "purchase"],
-    });
+    let purchaseProduct = await this.purchaseProductRepo
+      .createQueryBuilder("pp")
+      .leftJoinAndSelect("pp.product", "product")
+      .leftJoinAndSelect("pp.purchase", "purchase")
+      .where("purchase.id = :orderId", { orderId })
+      .andWhere("product.productId = :productId", { productId })
+      .getOne();
 
     if (purchaseProduct) {
       //  אם כבר קיים — מוסיפים עוד 1 לכמות
@@ -82,10 +117,18 @@ export class PurchasesService {
       throw new NotFoundException("Product not found");
     }
     //  אם לא קיים — יוצרים רשומה חדשה
+    const purchase = await this.purchaseRepo.findOne({
+      where: { id: orderId },
+    });
+
+    if (!purchase) {
+      throw new NotFoundException("Purchase not found");
+    }
+
     purchaseProduct = this.purchaseProductRepo.create({
-      purchase: { id: purchase.id },
-      product: { productId },
-      amount: 1,
+      purchase, // <-- entity מלא
+      product: product, // <-- entity מלא
+      amount,
       currentPrice: product.price,
     });
 

@@ -39,3 +39,22 @@ export type ProductType = {
   id: number;       // מזהה ייחודי של סוג המוצר
   name: string;     // שם סוג המוצר
 };
+
+export interface PurchaseProduct {
+  id: number;
+  purchase: Purchase; // רק ה-id של הרכישה
+  product: Product;
+  amount: number;
+  currentPrice: number;
+}
+
+export interface Purchase {
+  id: number;
+  user: User; // רק ה-id של המשתמש
+  status: PurchaseStatus; // בהתאמה ל-PurchaseStatus
+  createdAt: string; // ISO string
+  deliverTime?: string; // ISO string
+  address?: string;
+  phone?: string;
+  purchaseProducts: PurchaseProduct[];
+}

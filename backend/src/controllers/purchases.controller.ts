@@ -1,8 +1,10 @@
 import {
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   Query,
 } from "@nestjs/common";
@@ -12,16 +14,31 @@ import { PurchasesService } from "src/services/purchases.service";
 export class PurchasesController {
   constructor(private purchasesService: PurchasesService) {}
 
-  @Get()
+  @Get("pending")
   async getByUser(@Query("id") userId: number) {
     const purchase = await this.purchasesService.getPendingPurchase(userId);
     return purchase?.id;
   }
 
+  @Get("id")
+  async getOrderByIdHandler(@Query("id") id: number) {
+    return await this.purchasesService.getOrderById(id);
+  }
+
+  @Get("products/total")
+  async getOrderTotalAmount(@Query("id") orderId: number) {
+    return await this.purchasesService.getTotalAmountPurchase(orderId);
+  }
+
+  @Delete(":purchaseId/product/:productId")
+  async deleteProduct(@Param("purchaseId") purchaseId: number, @Param("productId") productId: number) {
+    return this.purchasesService.deleteProduct(+purchaseId, +productId);
+  }
+
   @Post()
   async create(@Query("id") userId: number) {
     try {
-      return await this.purchasesService.createPurchase(userId);
+      return (await this.purchasesService.createPurchase(userId)).id;
     } catch (error) {
       console.error(error);
       throw new HttpException(
@@ -34,11 +51,11 @@ export class PurchasesController {
   @Post("products/increase")
   async addProduct(
     @Query("productId") productId: number,
-    @Query("userId") userId: number
+    @Query("orderId") orderId: number
   ) {
     try {
       return await this.purchasesService.addProductToPurchase(
-        userId,
+        orderId,
         productId,
         1
       );
@@ -54,11 +71,11 @@ export class PurchasesController {
   @Post("products/decrease")
   async decreaseProduct(
     @Query("productId") productId: number,
-    @Query("userId") userId: number
+    @Query("orderId") orderId: number
   ) {
     try {
       return await this.purchasesService.addProductToPurchase(
-        userId,
+        orderId,
         productId,
         -1
       );
