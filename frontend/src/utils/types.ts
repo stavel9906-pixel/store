@@ -58,3 +58,26 @@ export interface Purchase {
   phone?: string;
   purchaseProducts: PurchaseProduct[];
 }
+
+export interface City {
+  id: number;
+  name: string;
+  country: Country;
+}
+
+export interface Country {
+  id: number;
+  name: string;
+  cities: City[];
+}
+
+export interface PurchaseAddress {
+  id: number;
+  purchase: Purchase;  
+  street: string;
+  houseNumber: string;
+  city: City;             
+  phone: string;
+}
+
+

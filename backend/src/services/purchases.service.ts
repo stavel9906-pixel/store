@@ -105,8 +105,9 @@ export class PurchasesService {
       .getOne();
 
     if (purchaseProduct) {
-      //  אם כבר קיים — מוסיפים עוד 1 לכמות
-      purchaseProduct.amount += amount;
+      const newAmount = purchaseProduct.amount + amount;
+      purchaseProduct.amount = newAmount < 0 ? 0 : newAmount;
+
 
       return this.purchaseProductRepo.save(purchaseProduct);
     }
@@ -125,9 +126,11 @@ export class PurchasesService {
       throw new NotFoundException("Purchase not found");
     }
 
+    
+
     purchaseProduct = this.purchaseProductRepo.create({
-      purchase, // <-- entity מלא
-      product: product, // <-- entity מלא
+      purchase, //  entity מלא
+      product: product, //  entity מלא
       amount,
       currentPrice: product.price,
     });

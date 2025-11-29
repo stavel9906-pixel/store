@@ -48,41 +48,22 @@ export class PurchasesController {
     }
   }
 
-  @Post("products/increase")
+  @Post("products/amount")
   async addProduct(
     @Query("productId") productId: number,
-    @Query("orderId") orderId: number
+    @Query("orderId") orderId: number,
+    @Query("amount") amount: number
   ) {
     try {
       return await this.purchasesService.addProductToPurchase(
         orderId,
         productId,
-        1
+        +amount
       );
     } catch (error) {
       console.error(error);
       throw new HttpException(
         "Failed to add product to purchase",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  @Post("products/decrease")
-  async decreaseProduct(
-    @Query("productId") productId: number,
-    @Query("orderId") orderId: number
-  ) {
-    try {
-      return await this.purchasesService.addProductToPurchase(
-        orderId,
-        productId,
-        -1
-      );
-    } catch (error) {
-      console.error(error);
-      throw new HttpException(
-        "Failed to decrease product from purchase",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

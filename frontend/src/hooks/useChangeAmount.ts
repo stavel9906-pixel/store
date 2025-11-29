@@ -5,38 +5,30 @@ import purchasesApi from "../api/purchasesApi";
 import { useGetUserFromToken } from "../api/hooks/useGetUserFromToken";
 import { useOrderId } from "../context/OrderId";
 
-export const useChangeAmount = (toAdd: boolean, productId: number) => {
+export const useChangeAmount = (productId: number) => {
   const { setProductsAmountCart, productsAmountCart } = useProductsAmountCart();
   const { user } = useGetUserFromToken();
   const { orderId, setOrderId } = useOrderId();
-  const changeAmount = useCallback(async () => {
-    try {
-      if (user) {
-        if (productsAmountCart === 0 && !orderId) {
-          console.log(user.id)
-          const newOrderId = (await purchasesApi.purchases().create(user.id)).data;
-          setOrderId(newOrderId)
+
+  const changeAmount = useCallback(
+    async (toAdd: number) => {
+      try {
+        if (user) {
+          if (productsAmountCart === 0 && !orderId) {
+            const newOrderId = (await purchasesApi.purchases().create(user.id)).data;
+            setOrderId(newOrderId);
+          }
+
+          await purchasesApi.purchases().changeProductAmount(productId, orderId!, toAdd);
         }
 
-        if (toAdd) {
-          console.log(orderId)
-          // הוספת מוצר
-          await purchasesApi
-            .purchases()
-            .increaseProductAmount(productId, orderId!);
-        } else {
-          // הפחתת מוצר
-          await purchasesApi
-            .purchases()
-            .decreaseProductAmount(productId, orderId!);
-        }
+        setProductsAmountCart((prev) => prev + toAdd);
+      } catch (error) {
+        Swal.fire("There is a problem", "Can't update the cart", "error");
       }
-
-      setProductsAmountCart((prev) => prev + (toAdd ? 1 : -1));
-    } catch (error) {
-      Swal.fire("There is a problem", "Can't update the cart", "error");
-    }
-  }, [orderId, productId, productsAmountCart, setOrderId, setProductsAmountCart, toAdd, user]);
+    },
+    [orderId, productId, productsAmountCart, setOrderId, setProductsAmountCart, user]
+  );
 
   return changeAmount;
 };

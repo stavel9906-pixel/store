@@ -3,7 +3,7 @@ export const formFields = [
     name: "country",
     value: "",
     validate: (value: string) => value.trim().length >= 3,
-    errorMessage: "Country must be at least 3 characters",
+    errorMessage: "Country is required",
     showError: false,
   },
   {

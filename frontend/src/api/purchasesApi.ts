@@ -8,31 +8,19 @@ const axiosInstance = axios.create({
 export default {
   purchases() {
     return {
-      increaseProductAmount: (
+      changeProductAmount: (
         productId: number,
-        orderId: number
+        orderId: number,
+        amount:number
       ): Promise<AxiosResponse<void>> =>
         axiosInstance.post(
-          `/purchases/products/increase`,
+          `/purchases/products/amount`,
           {},
           {
             params: {
               productId,
               orderId,
-            },
-          }
-        ),
-      decreaseProductAmount: (
-        productId: number,
-        orderId: number
-      ): Promise<AxiosResponse<void>> =>
-        axiosInstance.post(
-          `/purchases/products/decrease`,
-          {},
-          {
-            params: {
-              productId,
-              orderId,
+              amount
             },
           }
         ),

@@ -29,20 +29,13 @@ export const CartCard: FC<CartCardProps> = ({
   onRemove,
 }) => {
   const [currentAmount, setCurrentAmount] = useState(product.amount);
-    const { setProductsAmountCart } = useProductsAmountCart();
-  
+  const { setProductsAmountCart } = useProductsAmountCart();
 
   useEffect(() => {
     setCurrentAmount(product.amount);
   }, []);
 
-  const handleDecrease = useChangeAmount(
-    false,
-    product?.product.productId ?? 0
-  );
-  const handleIncrease = useChangeAmount(true, product?.product.productId ?? 0);
-
-  if (!product) return null;
+  const changeAmount = useChangeAmount(product.product.productId);
 
   return (
     <CssVarsProvider>
@@ -133,8 +126,10 @@ export const CartCard: FC<CartCardProps> = ({
                 onClick={() => {
                   onRemove(product.product.productId);
                   setCurrentAmount((curr) => curr - product.amount);
-                  setSumPrice((curr) => curr - (product.product.price * product.amount));
-                  setProductsAmountCart(current => current - product.amount)
+                  setSumPrice(
+                    (curr) => curr - product.product.price * product.amount
+                  );
+                  setProductsAmountCart((current) => current - product.amount);
                 }}
               >
                 <DeleteIcon sx={{ fontSize: "1.5rem" }} />
@@ -147,10 +142,11 @@ export const CartCard: FC<CartCardProps> = ({
                 <Button
                   size="sm"
                   onClick={() => {
-                    handleDecrease();
+                    changeAmount(-1)
                     setSumPrice((curr) => curr - product.product.price);
                     setCurrentAmount((curr) => curr - 1);
                   }}
+                  disabled={currentAmount === 0}
                   sx={{ minWidth: 0 }}
                 >
                   <RemoveIcon fontSize="small" />
@@ -162,15 +158,10 @@ export const CartCard: FC<CartCardProps> = ({
                   min={0}
                   sx={{ width: 60, mx: 1, textAlign: "center" }}
                   onChange={(event) => {
-                    const newAmount = Number(event.currentTarget.value);
-                    if (newAmount > currentAmount) {
-                      handleIncrease();
-                      setSumPrice((curr) => curr + product.product.price);
-                    } else {
-                      handleDecrease();
-                      setSumPrice((curr) => curr - product.product.price);
-                    }
-
+                    const newAmount = Math.max(Number(event.currentTarget.value), 0);
+                    const diff = newAmount - currentAmount;
+                    changeAmount(diff);
+                    setSumPrice((curr) => curr + diff * product.product.price);
                     setCurrentAmount(newAmount);
                   }}
                 />
@@ -179,7 +170,7 @@ export const CartCard: FC<CartCardProps> = ({
                   size="sm"
                   onClick={() => {
                     console.log("increase");
-                    handleIncrease();
+                    changeAmount(1);
                     setSumPrice((curr) => curr + product.product.price);
                     setCurrentAmount((curr) => curr + 1);
                   }}
