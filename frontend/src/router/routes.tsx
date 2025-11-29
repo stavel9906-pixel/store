@@ -1,6 +1,6 @@
+import HorizontalLinearStepper from "../views/Stepper";
 import { Home } from "../views/Home";
 import { Login } from "../views/Login/Login";
-import { Orders } from "../views/Orders";
 
 export interface Page {
   path: string;
@@ -21,7 +21,7 @@ export const routes: Page[] = [
   },
   {
     path: "/orders",
-    element: <Orders />,
-    name:"orders"
+    element: <HorizontalLinearStepper />,
+    name: "orders",
   },
 ];

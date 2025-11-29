@@ -4,13 +4,17 @@ import { CartCard } from "../components/CartCard/CartCard";
 import { Button, Card, CardContent, Typography } from "@mui/material";
 import { useProductsAmountCart } from "../context/ProductsAmountCart";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import purchasesApi from "../api/purchasesApi";
-import Stepper from "../components/Stepper/Stepper";
-import HorizontalLinearStepper from "../components/Stepper/Stepper";
 
 const SHIPPING_PRICE: number = 2;
-export const Orders = () => {
+
+interface OrdersProps {
+  handleNext: () => void
+}
+export const Orders: FC<OrdersProps> = ({
+  handleNext
+}) => {
   const { order, setOrder } = useGetOrderById();
   const { productsAmountCart } = useProductsAmountCart();
   const [sumPrice, setSumPrice] = useState<number>(SHIPPING_PRICE);
@@ -43,7 +47,6 @@ export const Orders = () => {
 
   return (
     <>
-    <HorizontalLinearStepper />
       <Box
         display="flex"
         justifyContent="space-between"
@@ -78,15 +81,17 @@ export const Orders = () => {
           </Box>
         </Box>
         {/* RIGHT SIDE */}
-        <Box width={800}>
+        <Box width={"100%"}>
           <Card
             sx={{
-              height: 500,
+              width: "35%",
+              height: "50%",
               p: 4,
               display: "flex",
               flexDirection: "column",
               borderRadius: 10,
               boxShadow: 20,
+              position: "fixed"
             }}
           >
             <CardContent
@@ -130,6 +135,7 @@ export const Orders = () => {
                   fontWeight: "bold",
                   borderRadius: 20,
                 }}
+                onClick={handleNext}
               >
                 Checkout Now
               </Button>
