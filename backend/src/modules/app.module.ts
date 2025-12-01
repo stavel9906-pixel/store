@@ -14,6 +14,7 @@ import { City } from "src/entities/city.entity";
 import { Country } from "src/entities/country.entity";
 import { CountriesModule } from "./country.module";
 import { CitiesModule } from "./city.module";
+import { PurchaseAddressModule } from "./purchaseAddress.module";
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { CitiesModule } from "./city.module";
     PurchasesModule,
     CountriesModule,
     CitiesModule,
+    PurchaseAddressModule
   ],
 })
 export class AppModule {}

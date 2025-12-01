@@ -1,12 +1,16 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Product } from "src/entities/product.entity";
-import { ProductType } from "src/entities/productType.entity";
 import { Purchase } from "src/entities/purchase.entity";
 import { PurchaseStatus } from "src/enums/purchaseStatus.enum";
 import { PurchaseProduct } from "src/entities/purchaseProduct.entity";
 import { ProductsService } from "./products.service";
+import { HistoryDetailsDTO } from "src/entities/DTO/historyDetailsDTO";
+const SHIPPING_PRICE: number = 2;
 
 @Injectable()
 export class PurchasesService {
@@ -24,7 +28,7 @@ export class PurchasesService {
         user: { userId: id },
         status: PurchaseStatus.PENDING,
       },
-      relations: ["purchaseProducts", "user"], // הוספת הקשרים למשתמש ולמוצרים
+      relations: ["purchaseProducts", "user"],
     });
 
     return purchase;
@@ -34,9 +38,9 @@ export class PurchasesService {
     const purchase = await this.purchaseRepo.findOne({
       where: { id },
       relations: [
-        "purchaseProducts", // כל ה־PurchaseProduct
-        "purchaseProducts.product", // טעינת המידע המלא של כל Product
-        "purchaseProducts.product.productType", // אם רוצים גם סוג מוצר
+        "purchaseProducts",
+        "purchaseProducts.product",
+        "purchaseProducts.product.productType",
       ],
     });
 
@@ -45,8 +49,6 @@ export class PurchasesService {
 
   async deleteProduct(purchaseId: number, productId: number) {
     try {
-      console.log("purchase ", purchaseId);
-      console.log("product ", productId)
       const result = await this.purchaseProductRepo.delete({
         purchase: { id: purchaseId },
         product: { productId: productId },
@@ -74,6 +76,21 @@ export class PurchasesService {
     return totalAmount.total ?? 0;
   }
 
+  async updateStatus(id: number, status: PurchaseStatus): Promise<void> {
+    const updateResult = await this.purchaseRepo
+      .createQueryBuilder("order")
+      .update(Purchase)
+      .set({
+        status: status,
+      })
+      .where("id = :orderId", { orderId: id })
+      .execute();
+
+    if (updateResult.affected === 0) {
+      throw new NotFoundException("no purchase with this id found");
+    }
+  }
+
   async createPurchase(userId: number) {
     const existingPending = await this.getPendingPurchase(userId);
 
@@ -95,7 +112,6 @@ export class PurchasesService {
     productId: number,
     amount: number
   ) {
-    // האם המוצר כבר קיים בהזמנה?
     let purchaseProduct = await this.purchaseProductRepo
       .createQueryBuilder("pp")
       .leftJoinAndSelect("pp.product", "product")
@@ -108,7 +124,6 @@ export class PurchasesService {
       const newAmount = purchaseProduct.amount + amount;
       purchaseProduct.amount = newAmount < 0 ? 0 : newAmount;
 
-
       return this.purchaseProductRepo.save(purchaseProduct);
     }
 
@@ -117,7 +132,6 @@ export class PurchasesService {
     if (!product) {
       throw new NotFoundException("Product not found");
     }
-    //  אם לא קיים — יוצרים רשומה חדשה
     const purchase = await this.purchaseRepo.findOne({
       where: { id: orderId },
     });
@@ -126,15 +140,39 @@ export class PurchasesService {
       throw new NotFoundException("Purchase not found");
     }
 
-    
-
     purchaseProduct = this.purchaseProductRepo.create({
-      purchase, //  entity מלא
-      product: product, //  entity מלא
+      purchase,
+      product,
       amount,
       currentPrice: product.price,
     });
 
     return this.purchaseProductRepo.save(purchaseProduct);
+  }
+
+  async getUserOrdersDetails(userId: number): Promise<HistoryDetailsDTO[]> {
+    const purchasesDetail = await this.purchaseRepo.find({
+      where: { user: { userId: userId } },
+      relations: [
+        "purchaseProducts",
+        "purchaseProducts.product",
+        "purchaseProducts.product.productType",
+      ], // להוסיף של פרודאקט טייפ
+    });
+
+    console.log(purchasesDetail);
+
+    return purchasesDetail.map((order) => ({
+      orderId: order.id,
+      status: order.status,
+      createdAt: order.createdAt,
+      deliverTime: order.deliverTime,
+      totalPrice: order.purchaseProducts.reduce(
+        (sum, pp) => sum + pp.amount * pp.currentPrice,
+        0
+      ) + SHIPPING_PRICE,
+      quantity: order.purchaseProducts.reduce((sum, pp) => sum + pp.amount, 0),
+      purchaseProducts: order.purchaseProducts,
+    }));
   }
 }

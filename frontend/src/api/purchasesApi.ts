@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios";
-import { Purchase } from "../utils/types";
+import { HistoryDetailsDTO, Purchase } from "../utils/types";
+import { PurchaseStatus } from "../utils/enums";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/",
@@ -11,7 +12,7 @@ export default {
       changeProductAmount: (
         productId: number,
         orderId: number,
-        amount:number
+        amount: number
       ): Promise<AxiosResponse<void>> =>
         axiosInstance.post(
           `/purchases/products/amount`,
@@ -20,7 +21,7 @@ export default {
             params: {
               productId,
               orderId,
-              amount
+              amount,
             },
           }
         ),
@@ -32,6 +33,20 @@ export default {
           {
             params: {
               id,
+            },
+          }
+        ),
+      updateStatus: (
+        id: number | null,
+        status: PurchaseStatus
+      ): Promise<AxiosResponse<void>> =>
+        axiosInstance.patch(
+          `/purchases/${id}/${status}`,
+          {},
+          {
+            params: {
+              id,
+              status,
             },
           }
         ),
@@ -60,6 +75,16 @@ export default {
         productId: number
       ): Promise<AxiosResponse<void>> =>
         axiosInstance.delete(`/purchases/${purchaseId}/product/${productId}`),
+
+      getOrdersForUser: async (
+        token: string | null
+      ): Promise<AxiosResponse<HistoryDetailsDTO[]>> => {
+        return axiosInstance.get("purchases/user", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      },
     };
   },
 };

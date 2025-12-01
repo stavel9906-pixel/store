@@ -3,8 +3,8 @@ import Swal from "sweetalert2";
 import { useGetUserFromToken } from "./useGetUserFromToken";
 import purchasesApi from "../purchasesApi";
 
-export const useGetOrderByUser = () => {
-    const { user } = useGetUserFromToken();
+export const useGetPendingOrderByUser = () => {
+  const { user } = useGetUserFromToken();
   const [orderId, setOrderId] = useState<number | null>(null);
 
   useEffect(() => {

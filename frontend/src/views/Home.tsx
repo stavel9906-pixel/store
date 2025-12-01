@@ -53,7 +53,7 @@ export const Home = () => {
       <Button
         sx={{
           margin: 2,
-          backgroundColor: "#ddb3e6ff",
+          backgroundColor: "#ffecffff",
           color: "black",
         }}
         onClick={() => {
@@ -67,7 +67,7 @@ export const Home = () => {
       <Button
         sx={{
           margin: 2,
-          backgroundColor: "#ddb3e6ff",
+          backgroundColor: "#ffecffff",
           color: "black",
         }}
         onClick={() => {
@@ -95,9 +95,9 @@ export const Home = () => {
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap", // מאפשר מעבר שורה
-          justifyContent: "center", // מרכז את כל השורה
-          gap: 3, // רווח בין כרטיסים
+          flexWrap: "wrap", 
+          justifyContent: "center", 
+          gap: 3, 
           mt: 5,
         }}
       >

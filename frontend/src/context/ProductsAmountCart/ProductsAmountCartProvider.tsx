@@ -14,11 +14,9 @@ export const ProductsAmountCartProvider: FC<{
     const fetchProductsAmountCart = async () => {
       try {
         if (orderId) {
-          console.log(orderId)
           const fetchedProductsAmountCart = (
             await purchasesApi.purchases().getOrderTotalAmount(orderId)
           ).data;
-          console.log(fetchedProductsAmountCart, " amount")
           setProductsAmountCart(fetchedProductsAmountCart || 0);
         }
       } catch (error: unknown) {

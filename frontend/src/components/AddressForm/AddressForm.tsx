@@ -16,6 +16,11 @@ import { FC, useState } from "react";
 import { formFields } from "./addressFormFields";
 import { useGetCountries } from "../../api/hooks/useGetCountries";
 import { useGetCities } from "../../api/hooks/useGetCities";
+import { AddressField } from "../../utils/enums";
+import { useOrderId } from "../../context/OrderId";
+import addressOrderApi from "../../api/addressOrderApi";
+import Swal from "sweetalert2";
+import { OrderDetailsDTO } from "../../utils/DTOs";
 
 interface AddressFormProps {
   handleNext: () => void;
@@ -28,6 +33,7 @@ export const AddressForm: FC<AddressFormProps> = ({
   const [formData, setFormData] = useState(formFields);
   const { countries } = useGetCountries();
   const { cities } = useGetCities();
+  const { orderId } = useOrderId();
 
   const handleChange = (name: string, value: string) => {
     setFormData((prev) =>
@@ -35,7 +41,7 @@ export const AddressForm: FC<AddressFormProps> = ({
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     let allValid = true;
 
     const newFormData = formData.map((field) => {
@@ -51,10 +57,25 @@ export const AddressForm: FC<AddressFormProps> = ({
     setFormData(newFormData);
 
     if (allValid) {
-      console.log("Form data:", formData);
-      handleNext();
-    } else {
-      console.log("Validation errors exist");
+      const orderDetails: OrderDetailsDTO = {
+        firstName: newFormData[AddressField.FIRST_NAME].value,
+        lastName: newFormData[AddressField.LAST_NAME].value,
+        phoneNumber: newFormData[AddressField.PHONE_NUMBER].value,
+        city: newFormData[AddressField.CITY].value,
+        street: newFormData[AddressField.STREET].value,
+        houseNumber: +newFormData[AddressField.HOUSE_NUMBER].value,
+        orderId: orderId!,
+      };
+      try {
+        await addressOrderApi.purchaseAddress().insertAddress(orderDetails);
+        handleNext();
+      } catch (err) {
+        Swal.fire(
+          "Oops!",
+          "Failed to save address. Please try again.",
+          "error"
+        );
+      }
     }
   };
 
@@ -84,7 +105,6 @@ export const AddressForm: FC<AddressFormProps> = ({
             </Typography>
             <Divider sx={{ mb: 3 }} />
 
-            {/* Country Select */}
             <Typography sx={{ fontSize: "1.2rem", fontWeight: "bold", mb: 1 }}>
               Country/region
             </Typography>
@@ -95,16 +115,21 @@ export const AddressForm: FC<AddressFormProps> = ({
             >
               <InputLabel
                 id="country-label"
-                error={formData[0].showError}
+                error={formData[AddressField.COUNTRY].showError}
               >
-                {formData[0].name}
+                {formData[AddressField.COUNTRY].name}
               </InputLabel>
               <Select
                 labelId="country-label"
-                value={formData[0].value}
-                label={formData[0].name}
-                onChange={(e) => handleChange(formData[0].name, e.target.value)}
-                error={formData[0].showError}
+                value={formData[AddressField.COUNTRY].value}
+                label={formData[AddressField.COUNTRY].name}
+                onChange={(e) =>
+                  handleChange(
+                    formData[AddressField.COUNTRY].name,
+                    e.target.value
+                  )
+                }
+                error={formData[AddressField.COUNTRY].showError}
               >
                 {countries.map((country) => (
                   <MenuItem
@@ -115,9 +140,9 @@ export const AddressForm: FC<AddressFormProps> = ({
                   </MenuItem>
                 ))}
               </Select>
-              {formData[0].showError && (
+              {formData[AddressField.COUNTRY].showError && (
                 <FormHelperText sx={{ color: "#e00202ff" }}>
-                  {formData[0].errorMessage}
+                  {formData[AddressField.COUNTRY].errorMessage}
                 </FormHelperText>
               )}
             </FormControl>
@@ -125,32 +150,59 @@ export const AddressForm: FC<AddressFormProps> = ({
               Contant Information
             </Typography>
             <TextField
-              key={formData[1].name}
-              label={formData[1].name}
-              value={formData[1].value}
-              error={formData[1].showError}
-              helperText={formData[1].showError ? formData[1].errorMessage : ""}
-              onChange={(e) => handleChange(formData[1].name, e.target.value)}
+              key={formData[AddressField.FIRST_NAME].name}
+              label={formData[AddressField.FIRST_NAME].name}
+              value={formData[AddressField.FIRST_NAME].value}
+              error={formData[AddressField.FIRST_NAME].showError}
+              helperText={
+                formData[AddressField.FIRST_NAME].showError
+                  ? formData[AddressField.FIRST_NAME].errorMessage
+                  : ""
+              }
+              onChange={(e) =>
+                handleChange(
+                  formData[AddressField.FIRST_NAME].name,
+                  e.target.value
+                )
+              }
               sx={{ mb: 2, width: "45%", mr: 2 }}
             />
             <TextField
-              key={formData[2].name}
-              label={formData[2].name}
-              value={formData[2].value}
-              onChange={(e) => handleChange(formData[2].name, e.target.value)}
+              key={formData[AddressField.LAST_NAME].name}
+              label={formData[AddressField.LAST_NAME].name}
+              value={formData[AddressField.LAST_NAME].value}
+              onChange={(e) =>
+                handleChange(
+                  formData[AddressField.LAST_NAME].name,
+                  e.target.value
+                )
+              }
               sx={{ mb: 2, width: "45%" }}
-              error={formData[2].showError}
-              helperText={formData[2].showError ? formData[2].errorMessage : ""}
+              error={formData[AddressField.LAST_NAME].showError}
+              helperText={
+                formData[AddressField.LAST_NAME].showError
+                  ? formData[AddressField.LAST_NAME].errorMessage
+                  : ""
+              }
             />
             <TextField
               type="tel"
-              key={formData[3].name}
-              label={formData[3].name}
-              value={formData[3].value}
-              onChange={(e) => handleChange(formData[3].name, e.target.value)}
+              key={formData[AddressField.PHONE_NUMBER].name}
+              label={formData[AddressField.PHONE_NUMBER].name}
+              value={formData[AddressField.PHONE_NUMBER].value}
+              onChange={(e) =>
+                handleChange(
+                  formData[AddressField.PHONE_NUMBER].name,
+                  e.target.value
+                )
+              }
               sx={{ mb: 2, width: "60%", ml: "20%" }}
-              error={formData[3].showError}
-              helperText={formData[3].showError ? formData[3].errorMessage : ""}
+              error={formData[AddressField.PHONE_NUMBER].showError}
+              helperText={
+                formData[AddressField.PHONE_NUMBER].showError
+                  ? formData[AddressField.PHONE_NUMBER].errorMessage
+                  : ""
+              }
             />
             <Typography sx={{ fontSize: "1.2rem", fontWeight: "bold", mb: 1 }}>
               Address
@@ -161,21 +213,24 @@ export const AddressForm: FC<AddressFormProps> = ({
             >
               <InputLabel
                 id="country-label"
-                error={formData[4].showError}
+                error={formData[AddressField.CITY].showError}
               >
-                {formData[4].name}
+                {formData[AddressField.CITY].name}
               </InputLabel>
               <Select
                 labelId="city-label"
-                value={formData[4].value}
-                label={formData[4].name}
-                onChange={(e) => handleChange(formData[4].name, e.target.value)}
-                error={formData[4].showError}
+                value={formData[AddressField.CITY].value}
+                label={formData[AddressField.CITY].name}
+                onChange={(e) =>
+                  handleChange(formData[AddressField.CITY].name, e.target.value)
+                }
+                error={formData[AddressField.CITY].showError}
               >
                 {cities
                   .filter(
                     (city) =>
-                      city.country && city.country.name === formData[0].value
+                      city.country &&
+                      city.country.name === formData[AddressField.COUNTRY].value
                   )
                   .map((city) => (
                     <MenuItem
@@ -187,30 +242,45 @@ export const AddressForm: FC<AddressFormProps> = ({
                   ))}
               </Select>
 
-              {formData[4].showError && (
+              {formData[AddressField.CITY].showError && (
                 <FormHelperText sx={{ color: "#e00202ff" }}>
-                  {formData[4].errorMessage}
+                  {formData[AddressField.CITY].errorMessage}
                 </FormHelperText>
               )}
             </FormControl>
             <TextField
-              key={formData[5].name}
-              label={formData[5].name}
-              value={formData[5].value}
-              onChange={(e) => handleChange(formData[5].name, e.target.value)}
+              key={formData[AddressField.STREET].name}
+              label={formData[AddressField.STREET].name}
+              value={formData[AddressField.STREET].value}
+              onChange={(e) =>
+                handleChange(formData[AddressField.STREET].name, e.target.value)
+              }
               sx={{ width: "30%", mr: "2rem" }}
               error={formData[5].showError}
-              helperText={formData[5].showError ? formData[5].errorMessage : ""}
+              helperText={
+                formData[AddressField.STREET].showError
+                  ? formData[AddressField.STREET].errorMessage
+                  : ""
+              }
             />
             <TextField
               type="number"
-              key={formData[6].name}
-              label={formData[6].name}
-              value={formData[6].value}
-              onChange={(e) => handleChange(formData[6].name, e.target.value)}
+              key={formData[AddressField.HOUSE_NUMBER].name}
+              label={formData[AddressField.HOUSE_NUMBER].name}
+              value={formData[AddressField.HOUSE_NUMBER].value}
+              onChange={(e) =>
+                handleChange(
+                  formData[AddressField.HOUSE_NUMBER].name,
+                  e.target.value
+                )
+              }
               sx={{ width: "25%" }}
-              error={formData[6].showError}
-              helperText={formData[6].showError ? formData[6].errorMessage : ""}
+              error={formData[AddressField.HOUSE_NUMBER].showError}
+              helperText={
+                formData[AddressField.HOUSE_NUMBER].showError
+                  ? formData[AddressField.HOUSE_NUMBER].errorMessage
+                  : ""
+              }
             />
             <Box
               justifyContent={"center"}

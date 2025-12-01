@@ -4,18 +4,23 @@ import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import { Orders } from "./Orders";
 import { AddressForm } from "../components/AddressForm/AddressForm";
+import { CreditCardForm } from "../components/Payment/Payment";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import { Typography } from "@mui/material";
+import { useNavigate } from "react-router";
 
 const steps = ["Cart", "Place Order", "Pay", "Order Complete"];
 const CART_STEP = 0;
 const DETAILS_STEP = 1;
 const PAYMENT_STEP = 2;
+const COMPLETED_PAGE = 3;
 
 export default function HorizontalLinearStepper() {
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<number>());
+  const navigate = useNavigate();
 
   const isStepSkipped = (step: number) => {
     return skipped.has(step);
@@ -36,9 +41,9 @@ export default function HorizontalLinearStepper() {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleReset = () => {
-    setActiveStep(0);
-  };
+  const handleFinish = () => {
+    
+  }
 
   return (
     <Box sx={{ width: "100%", mt: 5 }}>
@@ -62,34 +67,42 @@ export default function HorizontalLinearStepper() {
         })}
       </Stepper>
       {activeStep === CART_STEP && <Orders handleNext={handleNext} />}
-      {activeStep === DETAILS_STEP && <AddressForm handleNext={handleNext} handleBack={handleBack}/>}
-      {activeStep === steps.length ? (
-        <React.Fragment>
-          {/* <Typography sx={{ mt: 2, mb: 1 }}>
-            All steps completed - you&apos;re finished
-          </Typography> */}
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Box sx={{ flex: "1 1 auto" }} />
-            <Button onClick={handleReset}>Reset</Button>
-          </Box>
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1 }}
-            >
-              Back
-            </Button>
-            <Box sx={{ flex: "1 1 auto" }} />
-            <Button onClick={handleNext}> 
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
-            </Button>
-          </Box>
-        </React.Fragment>
+      {activeStep === DETAILS_STEP && (
+        <AddressForm
+          handleNext={handleNext}
+          handleBack={handleBack}
+        />
+      )}
+      {activeStep === PAYMENT_STEP && (
+        <Box
+          sx={{
+            minHeight: "60vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <CreditCardForm handleNext={handleNext} />
+        </Box>
+      )}
+      {activeStep === COMPLETED_PAGE && (
+        <>
+          <CheckCircleOutlineIcon sx={{ fontSize: "10rem" }} />
+          <Typography sx={{ fontSize: "5rem" }}>Payment Successful!</Typography>
+          <h4>your payment has been completed</h4>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#9900ffff",
+              paddingInline: "5rem",
+              fontSize: "1.5rem",
+              mt: 2,
+            }}
+            onClick={() => navigate("/dashboard")}
+          >
+            Finish
+          </Button>
+        </>
       )}
     </Box>
   );

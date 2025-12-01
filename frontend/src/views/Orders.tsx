@@ -55,7 +55,6 @@ export const Orders: FC<OrdersProps> = ({
         px={4}
         mt={5}
       >
-        {/* LEFT SIDE */}
         <Box
           flex={1}
           mr={4}
@@ -80,7 +79,6 @@ export const Orders: FC<OrdersProps> = ({
             ))}
           </Box>
         </Box>
-        {/* RIGHT SIDE */}
         <Box width={"100%"}>
           <Card
             sx={{

@@ -4,15 +4,24 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Logger,
+  NotFoundException,
   Param,
+  Patch,
   Post,
   Query,
+  Request,
 } from "@nestjs/common";
+import { PurchaseStatus } from "src/enums/purchaseStatus.enum";
 import { PurchasesService } from "src/services/purchases.service";
+import { UsersService } from "src/services/users.service";
 
 @Controller("purchases")
 export class PurchasesController {
-  constructor(private purchasesService: PurchasesService) {}
+  constructor(
+    private purchasesService: PurchasesService,
+    private usersService: UsersService
+  ) {}
 
   @Get("pending")
   async getByUser(@Query("id") userId: number) {
@@ -31,8 +40,33 @@ export class PurchasesController {
   }
 
   @Delete(":purchaseId/product/:productId")
-  async deleteProduct(@Param("purchaseId") purchaseId: number, @Param("productId") productId: number) {
+  async deleteProduct(
+    @Param("purchaseId") purchaseId: number,
+    @Param("productId") productId: number
+  ) {
     return this.purchasesService.deleteProduct(+purchaseId, +productId);
+  }
+
+  @Get("user")
+  async getAllOrdersForUser(@Request() req) {
+    const user = this.usersService.getUserFromToken(req.headers.authorization);
+    console.log(user);
+    return await this.purchasesService.getUserOrdersDetails(user.id);
+  }
+
+  @Patch(":id/:status")
+  async updateStatus(@Param("id") id: number, @Param("status") status: PurchaseStatus) {
+    try {
+      await this.purchasesService.updateStatus(id, status);
+    } catch (err: any) {
+      if (err instanceof NotFoundException) {
+        throw new HttpException(err.message, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException(
+        "Error while updating order password",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
   @Post()
@@ -40,7 +74,7 @@ export class PurchasesController {
     try {
       return (await this.purchasesService.createPurchase(userId)).id;
     } catch (error) {
-      console.error(error);
+      Logger.error(error);
       throw new HttpException(
         "Failed to create purchase",
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -61,7 +95,7 @@ export class PurchasesController {
         +amount
       );
     } catch (error) {
-      console.error(error);
+      Logger.error(error);
       throw new HttpException(
         "Failed to add product to purchase",
         HttpStatus.INTERNAL_SERVER_ERROR

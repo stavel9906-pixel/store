@@ -1,4 +1,6 @@
-export const formFields = [
+import { FormField } from "../../utils/types";
+
+export const formFields: FormField[] = [
   {
     name: "country",
     value: "",
@@ -10,22 +12,22 @@ export const formFields = [
     name: "first Name",
     value: "",
     validate: (value: string) => /^[A-Za-z]{2,20}$/.test(value),
-    errorMessage: "First name must contain only letters (2–20 characters)",
+    errorMessage: "First name must contain only letters (2-20 characters)",
     showError: false,
   },
   {
     name: "last Name",
     value: "",
     validate: (value: string) => /^[A-Za-z]{2,20}$/.test(value),
-    errorMessage: "Last name must contain only letters (2–20 characters)",
+    errorMessage: "Last name must contain only letters (2-20 characters)",
     showError: false,
   },
 
   {
-    name: "phoneNumber",
+    name: "phone Number",
     value: "",
     validate: (value: string) => /^[0-9]{9,10}$/.test(value),
-    errorMessage: "Phone number must be 9–10 digits",
+    errorMessage: "Phone number must be 9-10 digits",
     showError: false,
   },
   {
@@ -43,10 +45,10 @@ export const formFields = [
     showError: false,
   },
   {
-    name: "houseNumber",
+    name: "house Number",
     value: "",
-    validate: (value: string) => /^[0-9]+$/.test(value),
-    errorMessage: "House number must be a number",
+    validate: (value: string) => +value > 0,
+    errorMessage: "House number must be a positive number",
     showError: false,
   },
 ];

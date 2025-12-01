@@ -1,52 +1,64 @@
-import { type Navigation } from '@toolpad/core/AppProvider';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import DescriptionIcon from '@mui/icons-material/Description';
-import LayersIcon from '@mui/icons-material/Layers';
-import IconButtonWithBadge from '../components/IconButtonBudget/IconButtonBudget';
+import { type Navigation } from "@toolpad/core/AppProvider";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import DescriptionIcon from "@mui/icons-material/Description";
+import LayersIcon from "@mui/icons-material/Layers";
+import IconButtonWithBadge from "../components/IconButtonBudget/IconButtonBudget";
+import HistoryIcon from "@mui/icons-material/History";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
 
 export const NAVIGATION: Navigation = [
   {
-    kind: 'header',
-    title: 'Main items',
+    kind: "header",
+    title: "Main items",
   },
   {
-    segment: 'dashboard',
-    title: 'Dashboard',
+    segment: "dashboard",
+    title: " Dashboard",
     icon: <DashboardIcon />,
   },
   {
-    segment: 'orders',
-    title: 'Orders',
+    segment: "orders",
+    title: "Orders",
     icon: <IconButtonWithBadge />,
   },
   {
-    kind: 'divider',
+    segment: "history",
+    title: " History",
+    icon: <HistoryIcon />,
   },
   {
-    kind: 'header',
-    title: 'Analytics',
+    segment: "profile",
+    title: " Profile",
+    icon: <AccountBoxIcon />,
   },
   {
-    segment: 'reports',
-    title: 'Reports',
+    kind: "divider",
+  },
+  {
+    kind: "header",
+    title: "Analytics",
+  },
+  {
+    segment: "reports",
+    title: "Reports",
     icon: <BarChartIcon />,
     children: [
       {
-        segment: 'sales',
-        title: 'Sales',
+        segment: "sales",
+        title: "Sales",
         icon: <DescriptionIcon />,
       },
       {
-        segment: 'traffic',
-        title: 'Traffic',
+        segment: "traffic",
+        title: "Traffic",
         icon: <DescriptionIcon />,
       },
     ],
   },
   {
-    segment: 'integrations',
-    title: 'Integrations',
+    segment: "integrations",
+    title: "Integrations",
     icon: <LayersIcon />,
   },
 ];

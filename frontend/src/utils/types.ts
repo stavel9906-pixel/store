@@ -1,24 +1,14 @@
-// types/User.ts
-export enum UsersRole {
-  ADMIN = 'admin',
-  USER = 'user',
-}
-
-export enum PurchaseStatus {
-  PENDING = 'pending',
-  PAID = 'paid',
-  CANCELLED = 'cancelled',
-  DELIVERED = 'delivered',
-  SHIPPED = 'shipped',
-}
+import { PurchaseStatus, UsersRole } from "./enums";
 
 export interface User {
   id: number;
-  userName: string;
+  name: string;
   email: string;
   password?: string;
   role: UsersRole;
+  profile?: string;
 }
+
 
 export interface AuthResponse {
   message: string;
@@ -31,18 +21,18 @@ export type Product = {
   productName: string;
   price: number;
   description: string;
-  productType: ProductType;  // שם סוג המוצר
-  imageUrl: string;     // URL של התמונה ב-Cloudinary
+  productType: ProductType;
+  imageUrl: string; // URL של התמונה ב-Cloudinary
 };
 
 export type ProductType = {
-  id: number;       // מזהה ייחודי של סוג המוצר
-  name: string;     // שם סוג המוצר
+  id: number;
+  name: string;
 };
 
 export interface PurchaseProduct {
   id: number;
-  purchase: Purchase; // רק ה-id של הרכישה
+  purchase: Purchase;
   product: Product;
   amount: number;
   currentPrice: number;
@@ -50,12 +40,10 @@ export interface PurchaseProduct {
 
 export interface Purchase {
   id: number;
-  user: User; // רק ה-id של המשתמש
-  status: PurchaseStatus; // בהתאמה ל-PurchaseStatus
-  createdAt: string; // ISO string
-  deliverTime?: string; // ISO string
-  address?: string;
-  phone?: string;
+  user: User;
+  status: PurchaseStatus;
+  createdAt: string;
+  deliverTime?: string;
   purchaseProducts: PurchaseProduct[];
 }
 
@@ -73,11 +61,17 @@ export interface Country {
 
 export interface PurchaseAddress {
   id: number;
-  purchase: Purchase;  
+  purchase: Purchase;
   street: string;
   houseNumber: string;
-  city: City;             
+  city: City;
   phone: string;
 }
 
-
+export type FormField = {
+  name: string;
+  value: string;
+  validate: (value: string, formData?: FormField[]) => boolean; 
+  errorMessage: string;
+  showError: boolean;
+};

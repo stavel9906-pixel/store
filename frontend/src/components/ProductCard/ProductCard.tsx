@@ -25,9 +25,10 @@ export const ProductCard: FC<ProductCardProps> = ({ product }) => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const changeAmount = useChangeAmount(product.productId);
 
   return (
-    <Card sx={{ width: 320, m: 2, position: "relative", flexWrap: "wrap" }}>
+    <Card sx={{ width: 320, m: 2, position: "relative", flexWrap: "wrap", borderRadius: 10 }}>
       <IconButton
         aria-label="addCart"
         sx={{
@@ -37,7 +38,7 @@ export const ProductCard: FC<ProductCardProps> = ({ product }) => {
           backgroundColor: "#008cffff",
           color: "white",
         }}
-        onClick={useChangeAmount(true, product.productId)}
+        onClick={() => changeAmount(1)}
       >
         <AddShoppingCartIcon/>
       </IconButton>

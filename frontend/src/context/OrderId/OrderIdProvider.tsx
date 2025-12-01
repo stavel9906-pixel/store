@@ -1,11 +1,11 @@
 import { FC } from "react";
 import { OrderIdContext } from "./OrderIdContext";
-import { useGetOrderByUser } from "../../api/hooks/useGetOrderByUser";
+import { useGetPendingOrderByUser } from "../../api/hooks/useGetPendingOrderByUser";
 
 export const OrderIdProvider: FC<{
   children: JSX.Element[] | JSX.Element;
 }> = ({ children }) => {
-  const { orderId, setOrderId } = useGetOrderByUser();
+  const { orderId, setOrderId } = useGetPendingOrderByUser();
 
   return (
     <OrderIdContext.Provider

@@ -18,13 +18,21 @@ export default {
           email,
           password,
         }),
+      updateUser: (formData: FormData): Promise<AxiosResponse<AuthResponse>> =>
+        axiosInstance.patch("users", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data", //type of FormData instead of json
+          },
+        }),
       signIn: (
         name: string,
-        email: string
+        email: string,
+        profile: string | undefined
       ): Promise<AxiosResponse<AuthResponse>> =>
         axiosInstance.post("users/signin", {
           userName: name,
           email,
+          profile,
         }),
 
       login: (
@@ -32,7 +40,9 @@ export default {
         password: string
       ): Promise<AxiosResponse<AuthResponse>> =>
         axiosInstance.post("users/login", { email, password }),
-      getProfile: async (token: string | null): Promise<AxiosResponse<User>> => {
+      getProfile: async (
+        token: string | null
+      ): Promise<AxiosResponse<User>> => {
         return axiosInstance.get("users/profile", {
           headers: {
             Authorization: `Bearer ${token}`, // שולחים את הטוקן בבקשה

@@ -1,10 +1,17 @@
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
-import { FC } from "react";
-import { Outlet } from "react-router-dom";
+import { FC, useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import { NAVIGATION } from "../router/navigation";
-import { CardContent, CardMedia, IconButton, Typography, Stack, Tooltip } from "@mui/material";
-import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import {
+  CardContent,
+  CardMedia,
+  IconButton,
+  Typography,
+  Stack,
+  Tooltip,
+} from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { ThemeSwitcher } from "@toolpad/core/DashboardLayout";
 
 const CustomAppTitle = () => (
@@ -20,31 +27,45 @@ const CustomAppTitle = () => (
   </CardContent>
 );
 
-const CustomToolbarActions = () => (
-  <Stack direction="row" spacing={1} alignItems="center">
-    <Tooltip title="Theme">
-      <ThemeSwitcher />
-    </Tooltip>
-    <IconButton color="primary">
-      <AccountBoxIcon />
-    </IconButton>
-  </Stack>
-);
+const Layout: FC = () => {
+  const navigate = useNavigate();
 
-const Layout: FC = () => {  
+  const handleLogOut = () => {
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+    navigate("/login");
+  };
+
+  const CustomToolbarActions = () => (
+    <Stack direction="row" spacing={1} alignItems="center">
+      <Tooltip title="Theme">
+        <ThemeSwitcher />
+      </Tooltip>
+      <IconButton color="primary" onClick={handleLogOut}>
+        <LogoutIcon />
+      </IconButton>
+    </Stack>
+  );
+
+  useEffect(() => {
+    if (!localStorage.getItem("token") && !sessionStorage.getItem("token")) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   return (
     <AppProvider navigation={NAVIGATION}>
       <DashboardLayout
         slots={{
-          appTitle: CustomAppTitle,       
-          toolbarActions: CustomToolbarActions, 
+          appTitle: CustomAppTitle,
+          toolbarActions: CustomToolbarActions,
         }}
-        sx={{ backgroundColor: "#e1f9fdff" }}
+        sx={{ backgroundColor: "#b2d8dfff" }}
       >
         <Outlet />
       </DashboardLayout>
     </AppProvider>
   );
 };
-
+ 
 export default Layout;

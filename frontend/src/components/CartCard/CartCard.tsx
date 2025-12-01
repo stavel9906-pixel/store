@@ -19,8 +19,8 @@ import { useProductsAmountCart } from "../../context/ProductsAmountCart";
 
 interface CartCardProps {
   product: PurchaseProduct;
-  setSumPrice: React.Dispatch<React.SetStateAction<number>>;
-  onRemove: (productId: number) => void;
+  setSumPrice: React.Dispatch<React.SetStateAction<number>> | null;
+  onRemove: ((productId: number) => void) | null;
 }
 
 export const CartCard: FC<CartCardProps> = ({
@@ -33,7 +33,7 @@ export const CartCard: FC<CartCardProps> = ({
 
   useEffect(() => {
     setCurrentAmount(product.amount);
-  }, []);
+  }, [product.amount]);
 
   const changeAmount = useChangeAmount(product.product.productId);
 
@@ -118,66 +118,86 @@ export const CartCard: FC<CartCardProps> = ({
               alignItems="center"
               sx={{ ml: "auto", mr: 2 }}
             >
-              <IconButton
-                variant="plain"
-                color="neutral"
-                size="lg"
-                sx={{ ml: "auto", mb: "auto" }}
-                onClick={() => {
-                  onRemove(product.product.productId);
-                  setCurrentAmount((curr) => curr - product.amount);
-                  setSumPrice(
-                    (curr) => curr - product.product.price * product.amount
-                  );
-                  setProductsAmountCart((current) => current - product.amount);
-                }}
-              >
-                <DeleteIcon sx={{ fontSize: "1.5rem" }} />
-              </IconButton>
+              {onRemove && (
+                <IconButton
+                  variant="plain"
+                  color="neutral"
+                  size="lg"
+                  sx={{ ml: "auto", mb: "auto" }}
+                  onClick={() => {
+                    onRemove(product.product.productId);
+                    setCurrentAmount((curr) => curr - product.amount);
+                    if (setSumPrice) {
+                      setSumPrice(
+                        (curr) => curr - product.product.price * product.amount
+                      );
+                    }
+                    setProductsAmountCart(
+                      (current) => current - product.amount
+                    );
+                  }}
+                >
+                  <DeleteIcon sx={{ fontSize: "1.5rem" }} />
+                </IconButton>
+              )}
               <Box
                 display="flex"
                 alignItems="center"
                 sx={{ pointerEvents: "auto", mt: "auto" }}
               >
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    changeAmount(-1)
-                    setSumPrice((curr) => curr - product.product.price);
-                    setCurrentAmount((curr) => curr - 1);
-                  }}
-                  disabled={currentAmount === 0}
-                  sx={{ minWidth: 0 }}
-                >
-                  <RemoveIcon fontSize="small" />
-                </Button>
+                {!onRemove ? (
+                  <h5>amount:   </h5>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      changeAmount(-1);
+                      if (setSumPrice) {
+                        setSumPrice((curr) => curr - product.product.price);
+                      }
+                      setCurrentAmount((curr) => curr - 1);
+                    }}
+                    disabled={currentAmount === 0}
+                    sx={{ minWidth: 0 }}
+                  >
+                    <RemoveIcon fontSize="small" />
+                  </Button>
+                )}
 
                 <Input
                   type="number"
                   value={currentAmount}
-                  min={0}
+                  disabled={!onRemove}
                   sx={{ width: 60, mx: 1, textAlign: "center" }}
                   onChange={(event) => {
-                    const newAmount = Math.max(Number(event.currentTarget.value), 0);
+                    const newAmount = Math.max(
+                      Number(event.currentTarget.value),
+                      0
+                    );
                     const diff = newAmount - currentAmount;
                     changeAmount(diff);
-                    setSumPrice((curr) => curr + diff * product.product.price);
+                    if (setSumPrice) {
+                      setSumPrice(
+                        (curr) => curr + diff * product.product.price
+                      );
+                    }
                     setCurrentAmount(newAmount);
                   }}
                 />
 
-                <Button
+                {onRemove && <Button
                   size="sm"
                   onClick={() => {
-                    console.log("increase");
                     changeAmount(1);
-                    setSumPrice((curr) => curr + product.product.price);
+                    if (setSumPrice) {
+                      setSumPrice((curr) => curr + product.product.price);
+                    }
                     setCurrentAmount((curr) => curr + 1);
                   }}
                   sx={{ minWidth: 0 }}
                 >
                   <AddIcon fontSize="small" />
-                </Button>
+                </Button>}
               </Box>
             </Box>
           </Card>

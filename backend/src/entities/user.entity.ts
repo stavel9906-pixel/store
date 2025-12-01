@@ -19,15 +19,9 @@ export class User {
   @Column({ type: "enum", enum: UsersRole, default: UsersRole.USER })
   role!: UsersRole;
 
+  @Column()
+  profile?: string;
+
   @OneToMany(() => Purchase, (purchase) => purchase.user)
   purchases?: Purchase[];
-
-  @Column({ nullable: true })
-  phone: string;
-
-  @Column({ name: "first_name" })
-  firstName: string;
-
-  @Column({ name: "last_name" })
-  lastName: string;
 }

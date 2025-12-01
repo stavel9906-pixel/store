@@ -5,7 +5,7 @@ import { City } from "src/entities/city.entity";
 import { CitiesService } from "src/services/city.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([City])], // מאפשר inject של repository
+  imports: [TypeOrmModule.forFeature([City])], 
   providers: [CitiesService],
   controllers: [CitiesController],
 })

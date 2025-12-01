@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  OneToOne,
 } from "typeorm";
 import { User } from "./user.entity";
 import { PurchaseProduct } from "./purchaseProduct.entity";
@@ -32,9 +33,6 @@ export class Purchase {
   @CreateDateColumn({ name: "created_at" })
   createdAt!: Date;
 
-  // @UpdateDateColumn({name: "updated_at"})
-  // updatedAt!: Date;
-
   @OneToMany(
     () => PurchaseProduct,
     (purchaseProduct) => purchaseProduct.purchase
@@ -44,6 +42,6 @@ export class Purchase {
   @Column({ name: "deliver_time" })
   deliverTime?: Date;
 
-  @OneToMany(() => PurchaseAddress, (address) => address.purchase)
-  addresses: PurchaseAddress[];
+  @OneToOne(() => PurchaseAddress)
+  address: PurchaseAddress;
 }

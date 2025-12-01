@@ -17,7 +17,6 @@ export const useSearch = (searchedArray: Product[]) => {
         selectedTypes.length === 0 || // אם לא נבחרו קטגוריות, הכל עובר
         selectedTypes.includes(product.productType.name);
 
-      // שניהם חייבים להתקיים
       return matchesSearch && matchesType;
     });
   }, [searchedArray, search, selectedTypes]);

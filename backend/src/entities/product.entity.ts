@@ -16,7 +16,7 @@ export class Product {
   productName!: string;
 
   @ManyToOne(() => ProductType, (type) => type.products)
-  @JoinColumn({ name: "product_type" }) // זה השם המדויק בבסיס הנתונים
+  @JoinColumn({ name: "product_type" }) 
   productType!: ProductType;
 
   @Column()
