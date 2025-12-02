@@ -1,8 +1,8 @@
 import axios, { AxiosResponse } from "axios";
-import { OrderDetailsDTO } from "../utils/types";
+import { OrderDetailsDTO } from "../utils/DTOs";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000/",
+  baseURL: "http://localhost:3000/purchase-address",
 });
 
 export default {
@@ -11,7 +11,7 @@ export default {
       insertAddress: (
         data: OrderDetailsDTO
       ): Promise<AxiosResponse<{ message: string }>> =>
-        axiosInstance.post("purchase-address/insert", data),
+        axiosInstance.post("/insert", data),
     };
   },
 };

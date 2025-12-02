@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PurchaseAddress } from '../entities/purchaseAddress.entity';
-import { City } from '../entities/city.entity';
-import { orderDetailsDTO } from 'src/entities/DTO/orderDetailsDTO';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { PurchaseAddress } from "../entities/purchaseAddress.entity";
+import { City } from "../entities/city.entity";
+import { orderDetailsDTO } from "src/entities/DTO/orderDetailsDTO";
 
 @Injectable()
 export class PurchaseAddressService {
@@ -11,7 +11,7 @@ export class PurchaseAddressService {
     @InjectRepository(PurchaseAddress)
     private readonly addressRepo: Repository<PurchaseAddress>,
     @InjectRepository(City)
-    private readonly cityRepo: Repository<City>,
+    private readonly cityRepo: Repository<City>
   ) {}
 
   async insertOrderAddress(dto: orderDetailsDTO) {
@@ -29,8 +29,11 @@ export class PurchaseAddressService {
         street: dto.street,
         houseNumber: dto.houseNumber.toString(),
         city: city,
+        requestedDate: dto.date || null,
+        requestedTimeFrom: dto.timeFrom || null,
+        requestedTimeTo: dto.timeTo || null,
       })
-      .where('purchase_id = :orderId', { orderId: dto.orderId })
+      .where("purchase_id = :orderId", { orderId: dto.orderId })
       .execute();
 
     // אם לא היה עדכון, יוצרים חדש
@@ -43,6 +46,9 @@ export class PurchaseAddressService {
         street: dto.street,
         houseNumber: dto.houseNumber.toString(),
         city: city,
+        requestedDate: dto.date || null,
+        requestedTimeFrom: dto.timeFrom || null,
+        requestedTimeTo: dto.timeTo || null,
       });
       return this.addressRepo.save(newAddress);
     }

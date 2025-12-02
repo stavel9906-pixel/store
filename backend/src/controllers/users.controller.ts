@@ -15,6 +15,7 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 import type { UpdateUserDTO } from "src/entities/DTO/updatedUserDTO";
 import { User } from "src/entities/user.entity";
+import { UsersRole } from "src/enums/userRole.enum";
 import { UnauthorizedError } from "src/errors/unauthorizedError";
 import { UsersService } from "src/services/users.service";
 
@@ -71,14 +72,15 @@ export class UsersController {
     }
   }
 
-  @Get()
-  findAll(): string {
-    return "This action returns all cats";
-  }
-
   @Get("profile")
   getProfile(@Request() req) {
     return this.usersService.getUserFromToken(req.headers["authorization"]);
+  }
+
+  @Get("is-admin")
+  getIsAdmin(@Request() req) {
+    const user = this.usersService.getUserFromToken(req.headers["authorization"]);
+    return user.role === UsersRole.ADMIN;
   }
 
   @Patch()

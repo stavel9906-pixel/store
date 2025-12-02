@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGetUserFromToken } from "../api/hooks/useGetUserFromToken";
 import { authFormFields } from "./Login/authFields";
 import { AuthField } from "../utils/enums";
-import LockPersonOutlinedIcon from "@mui/icons-material/LockPersonOutlined";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import usersApi from "../api/usersApi";
 import Swal from "sweetalert2";
@@ -333,9 +333,9 @@ export const Profile = () => {
             alignItems="center"
             mb={2}
           >
-            <LockPersonOutlinedIcon
+            <ManageAccountsOutlinedIcon
               sx={{ fontSize: "25rem", color: "gray" }}
-            ></LockPersonOutlinedIcon>
+            ></ManageAccountsOutlinedIcon>
           </Box>
         </Box>
       </Card>

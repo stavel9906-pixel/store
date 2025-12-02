@@ -1,20 +1,13 @@
 // ProductsTable.tsx
-import { DataGrid, GridColDef, GridEventListener } from "@mui/x-data-grid";
+import { DataGrid, GridCellParams, GridColDef } from "@mui/x-data-grid";
 import { Box, Modal, Typography } from "@mui/material";
 import { useGetOrdersForUser } from "../api/hooks/useGetOrdersForUser";
 import { useState } from "react";
 import { CartCard } from "../components/CartCard/CartCard";
-import { HistoryDetailsDTO } from "../utils/types";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-
-const columns: GridColDef[] = [
-  { field: "orderId", headerName: "Order Id", width: 200 },
-  { field: "createdAt", headerName: "Created At", width: 200 },
-  { field: "deliverTime", headerName: "Deliver Time", width: 200 },
-  { field: "status", headerName: "Status", width: 200 },
-  { field: "quantity", headerName: "Quantity", width: 200 },
-  { field: "totalPrice", headerName: "Total Price ($)", width: 200 },
-];
+import { HistoryDetailsDTO } from "../utils/DTOs";
+import { useGetIsAdmin } from "../api/hooks/useGetIsAdmin";
+import { PurchaseStatus } from "../utils/enums";
 
 const style = {
   position: "absolute",
@@ -35,18 +28,58 @@ export const History = () => {
   const [clickedOrder, setClickedOrder] = useState<HistoryDetailsDTO | null>(
     null
   );
+  const { isAdmin } = useGetIsAdmin();
   const [open, setOpen] = useState(false);
   const handleClose = () => setOpen(false);
 
-  const handleRowClick: GridEventListener<"rowClick"> = (params) => {
+  const commonColumns: GridColDef[] = [
+    { field: "orderId", headerName: "Order Id", width: 120 },
+    {
+      field: "createdAt",
+      headerName: "Created At",
+      width: 160,
+      sortComparator: (v1: string, v2: string) => {
+        const parseDate = (str: string) => {
+          const [day, month, year] = str.split(".").map(Number);
+          return new Date(year, month - 1, day);
+        };
+        const date1 = parseDate(v1);
+        const date2 = parseDate(v2);
+
+        return date1.getTime() - date2.getTime();
+      },
+    },
+    { field: "deliverTime", headerName: "Preffered Deliver Time", width: 220 },
+    { field: "quantity", headerName: "Quantity", width: 120 },
+    { field: "totalPrice", headerName: "Total Price ($)", width: 180 },
+    {
+      field: "status",
+      headerName: "Status",
+      width: 120,
+      editable: isAdmin,
+      type: "singleSelect",
+      valueOptions: Object.values(PurchaseStatus),
+    },
+  ];
+
+  const columns: GridColDef[] = isAdmin
+    ? [
+        ...commonColumns,
+        { field: "userId", headerName: "Customer Id", width: 140 },
+        { field: "userName", headerName: "Full Name", width: 180 },
+        { field: "phone", headerName: "Phone Number", width: 160 },
+      ]
+    : commonColumns;
+
+  const handleCellClick = (params: GridCellParams) => {
+    if (params.field === "status" && isAdmin) return;
     setClickedOrder(params.row);
-    console.log(params.row.products);
     setOpen(true);
   };
   return (
     <Box
       sx={{
-        height: 420,
+        height: "80%",
         width: "95%",
         display: "flex",
         justifyContent: "center",
@@ -59,10 +92,10 @@ export const History = () => {
         columns={columns}
         pagination
         pageSizeOptions={[5, 10, 25]}
-        autoHeight
+        autoHeight={false}
         showToolbar
         disableRowSelectionOnClick
-        onRowClick={handleRowClick}
+        onCellClick={handleCellClick}
         {...orders}
         sx={{
           "& .MuiDataGrid-columnHeader": {
@@ -121,4 +154,4 @@ export const History = () => {
       )}
     </Box>
   );
-}
+};

@@ -51,4 +51,44 @@ export const formFields: FormField[] = [
     errorMessage: "House number must be a positive number",
     showError: false,
   },
+  {
+    name: "requested Date",
+    value: "",
+    validate: (value: string) => {
+      if (!value) return true;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const inputDate = new Date(value);
+      return inputDate >= today;
+    },
+    errorMessage: "Date cannot be in the past",
+    showError: false,
+  },
+  {
+    name: "requested Time From",
+    value: "",
+    validate: (value: string) => {
+      if (!value) return true; // אופציונלי
+      return /^([0-1]\d|2[0-3]):([0-5]\d)$/.test(value);
+    },
+    errorMessage: "Invalid start time",
+    showError: false,
+  },
+  {
+    name: "requested Time To",
+    value: "",
+    validate: (value: string, form?: FormField[]) => {
+      if (!value) return true;
+      if (!/^([0-1]\d|2[0-3]):([0-5]\d)$/.test(value)) return false;
+
+      const fromField = form?.find((f) => f.name === "requested Time From");
+
+      if (!fromField?.value) return true;
+
+      return value > fromField.value;
+    },
+    errorMessage: "End time must be later than start time",
+    showError: false,
+  },
 ];

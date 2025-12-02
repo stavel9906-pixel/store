@@ -2,16 +2,19 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGetProducts } from "../api/hooks/useGetProducts";
 import { useNavigate } from "react-router";
 import { ProductCard } from "../components/ProductCard/ProductCard";
-import { Box, Button } from "@mui/material";
+import { Box, Button, IconButton, Tooltip } from "@mui/material";
 import { SearchBar } from "../components/SearchBar";
 import { useSearch } from "../hooks/useSearch";
 import { CheapList } from "../components/CheapList/CheapList";
 import { useGetProductsType } from "../api/hooks/useGetProductsType";
 import SortIcon from "@mui/icons-material/Sort";
 import SortByAlphaIcon from "@mui/icons-material/SortByAlpha";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { useGetIsAdmin } from "../api/hooks/useGetIsAdmin";
 
 export const Home = () => {
   const { products } = useGetProducts();
+  const { isAdmin } = useGetIsAdmin();
   const { productsType } = useGetProductsType();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -78,6 +81,18 @@ export const Home = () => {
         <SortByAlphaIcon />
         <span> name</span>
       </Button>
+      {isAdmin && <Tooltip title="add product">
+        <IconButton
+          sx={{
+            position: "fixed",
+            right: "2%",
+            color: "#5d00ffff",
+            zIndex: 9999,
+          }}
+        >
+          <AddCircleIcon sx={{ fontSize: "5rem" }} />
+        </IconButton>
+      </Tooltip>}
 
       <section className="search-input">
         <SearchBar
@@ -95,9 +110,9 @@ export const Home = () => {
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap", 
-          justifyContent: "center", 
-          gap: 3, 
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: 3,
           mt: 5,
         }}
       >
@@ -106,6 +121,7 @@ export const Home = () => {
             <ProductCard
               key={product.productId}
               product={product}
+              isAdmin={isAdmin}
             />
           ))}
       </Box>

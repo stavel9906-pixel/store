@@ -36,4 +36,13 @@ export class PurchaseAddress {
 
   @Column({ name: "last_name" })
   lastName: string;
+
+  @Column({ type: "timestamp", name: "requested_time", nullable: true})
+  requestedDate: Date | null; // תאריך שבו המשתמש רוצה את המשלוח
+
+  @Column({ type: "time", name: "time_from", nullable: true })
+  requestedTimeFrom: string | null; // התחלת טווח השעות
+
+  @Column({ type: "time", name: "time_to", nullable: true })
+  requestedTimeTo: string | null; // סוף טווח השעות
 }

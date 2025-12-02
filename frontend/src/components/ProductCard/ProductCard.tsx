@@ -12,23 +12,36 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Tooltip,
 } from "@mui/material";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import React from "react";
 import { useChangeAmount } from "../../hooks/useChangeAmount";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface ProductCardProps {
   product: Product;
+  isAdmin: boolean;
 }
 
-export const ProductCard: FC<ProductCardProps> = ({ product }) => {
+export const ProductCard: FC<ProductCardProps> = ({ product, isAdmin }) => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const changeAmount = useChangeAmount(product.productId);
 
   return (
-    <Card sx={{ width: 320, m: 2, position: "relative", flexWrap: "wrap", borderRadius: 10 }}>
+    <Card
+      sx={{
+        width: 320,
+        m: 2,
+        position: "relative",
+        flexWrap: "wrap",
+        borderRadius: 10,
+      }}
+    >
+      <Tooltip title="add to cart">
       <IconButton
         aria-label="addCart"
         sx={{
@@ -37,11 +50,44 @@ export const ProductCard: FC<ProductCardProps> = ({ product }) => {
           right: 8,
           backgroundColor: "#008cffff",
           color: "white",
+          "&:hover": { backgroundColor: "#008cffff" },
         }}
         onClick={() => changeAmount(1)}
       >
-        <AddShoppingCartIcon/>
+        <AddShoppingCartIcon />
       </IconButton>
+      </Tooltip>
+      {isAdmin && (
+        <> <Tooltip title="delete product">
+          <IconButton
+            sx={{
+              position: "absolute",
+              left: "2%",
+              top: "2%",
+              backgroundColor: "white",
+              color: "gray",
+              "&:hover": { backgroundColor: "white" },
+            }}
+          >
+            <DeleteIcon />
+          </IconButton>
+          </Tooltip>
+          <Tooltip title="edit product">
+          <IconButton
+            sx={{
+              position: "absolute",
+              left: "17%",
+              top: "2%",
+              backgroundColor: "white",
+              color: "gray",
+              "&:hover": { backgroundColor: "white" },
+            }}
+          >
+            <EditIcon />
+          </IconButton>
+          </Tooltip>
+        </>
+      )}
       <CardMedia
         component="img"
         height={300}

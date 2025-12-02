@@ -15,6 +15,9 @@ import { Country } from "src/entities/country.entity";
 import { CountriesModule } from "./country.module";
 import { CitiesModule } from "./city.module";
 import { PurchaseAddressModule } from "./purchaseAddress.module";
+import { ShippingModule } from "./shipping.module";
+import { ShippingConfig } from "src/entities/shipping-config.entity";
+import { AdminModule } from "./admin.module";
 
 @Module({
   imports: [
@@ -35,6 +38,7 @@ import { PurchaseAddressModule } from "./purchaseAddress.module";
         PurchaseAddress,
         City,
         Country,
+        ShippingConfig,
       ],
       logging: true,
       synchronize: false,
@@ -46,7 +50,9 @@ import { PurchaseAddressModule } from "./purchaseAddress.module";
     PurchasesModule,
     CountriesModule,
     CitiesModule,
-    PurchaseAddressModule
+    PurchaseAddressModule, 
+    ShippingModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

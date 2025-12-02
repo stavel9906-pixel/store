@@ -49,7 +49,7 @@ export const CartCard: FC<CartCardProps> = ({
             variant="outlined"
             orientation="horizontal"
             sx={{
-              width: 700,
+              width: "38vw",
               height: 200,
               position: "relative",
               "&:hover": {

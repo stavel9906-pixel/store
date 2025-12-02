@@ -9,16 +9,22 @@ export type OrderDetailsDTO = {
   city: string;
   street: string;
   houseNumber: number;
+  date?: Date;
+  timeFrom?: string;
+  timeTo?: string;
 };
 
 export type HistoryDetailsDTO = {
   orderId: number;
   deliverTime: string | undefined;
-  createdAt: string;
+  createdAt: Date | string;
   quantity: number;
   totalPrice: number;
   status: PurchaseStatus;
   purchaseProducts: PurchaseProduct[];
+  userId: number;
+  userName: string;
+  phone: string;
 };
 
 export interface UpdateUserDTO {

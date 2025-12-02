@@ -1,9 +1,10 @@
 import axios, { AxiosResponse } from "axios";
-import { HistoryDetailsDTO, Purchase } from "../utils/types";
+import { Purchase } from "../utils/types";
 import { PurchaseStatus } from "../utils/enums";
+import { HistoryDetailsDTO } from "../utils/DTOs";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000/",
+  baseURL: "http://localhost:3000/purchases",
 });
 
 export default {
@@ -15,7 +16,7 @@ export default {
         amount: number
       ): Promise<AxiosResponse<void>> =>
         axiosInstance.post(
-          `/purchases/products/amount`,
+          `/products/amount`,
           {},
           {
             params: {
@@ -28,7 +29,7 @@ export default {
 
       create: (id: number): Promise<AxiosResponse<number>> =>
         axiosInstance.post(
-          `/purchases`,
+          ``,
           {},
           {
             params: {
@@ -41,7 +42,7 @@ export default {
         status: PurchaseStatus
       ): Promise<AxiosResponse<void>> =>
         axiosInstance.patch(
-          `/purchases/${id}/${status}`,
+          `/${id}/${status}`,
           {},
           {
             params: {
@@ -51,7 +52,7 @@ export default {
           }
         ),
       getByUser: (id: number): Promise<AxiosResponse<number | null>> =>
-        axiosInstance.get(`/purchases/pending`, {
+        axiosInstance.get(`/pending`, {
           params: {
             id,
           },
@@ -59,13 +60,13 @@ export default {
       getOrderTotalAmount: (
         id: number
       ): Promise<AxiosResponse<number | null>> =>
-        axiosInstance.get(`/purchases/products/total`, {
+        axiosInstance.get(`/products/total`, {
           params: {
             id,
           },
         }),
       getOrderById: (id: number | null): Promise<AxiosResponse<Purchase>> =>
-        axiosInstance.get(`/purchases/id`, {
+        axiosInstance.get(`/id`, {
           params: {
             id,
           },
@@ -74,12 +75,12 @@ export default {
         purchaseId: number,
         productId: number
       ): Promise<AxiosResponse<void>> =>
-        axiosInstance.delete(`/purchases/${purchaseId}/product/${productId}`),
+        axiosInstance.delete(`/${purchaseId}/product/${productId}`),
 
       getOrdersForUser: async (
         token: string | null
       ): Promise<AxiosResponse<HistoryDetailsDTO[]>> => {
-        return axiosInstance.get("purchases/user", {
+        return axiosInstance.get("/user", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

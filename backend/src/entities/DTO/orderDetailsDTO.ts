@@ -7,4 +7,7 @@ export type orderDetailsDTO = {
   street: string;
   houseNumber: string;
   orderId: number;
+  date?: Date;
+  timeFrom?: string;
+  timeTo?: string;
 };

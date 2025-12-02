@@ -6,6 +6,9 @@ export enum AddressField {
   CITY = 4,
   STREET = 5,
   HOUSE_NUMBER = 6,
+  DATE = 7,
+  TIME_FROM = 8,
+  TIME_TO = 9,
 }
 
 export enum UsersRole {

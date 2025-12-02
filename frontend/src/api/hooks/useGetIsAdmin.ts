@@ -1,27 +1,26 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { User } from "../../utils/types";
 import usersApi from "../usersApi";
 
-export const useGetUserFromToken = () => {
-  const [user, setUser] = useState<User | null>(null);
+export const useGetIsAdmin = () => {
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchIsAdmin = async () => {
       try {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
         if(!token) return;
         
-        const fetchedUser = (await usersApi.users().getProfile(token)).data;
-        setUser(fetchedUser);
+        const fetchedIsAdmin = (await usersApi.users().isAdmin(token)).data;
+        setIsAdmin(fetchedIsAdmin);
       } catch (error: unknown) {
         Swal.fire("Oops!", "There seems to be a problem. Please try again.", "error");
       }
     };
 
-    fetchUser();
+    fetchIsAdmin();
   }, []);
 
-  return { user, setUser };
+  return { isAdmin };
 };

@@ -1,23 +1,22 @@
 import { Box } from "@mui/system";
 import { useGetOrderById } from "../api/hooks/useGetOrderById";
-import { CartCard } from "../components/CartCard/CartCard";
+import { CartCard } from "./CartCard/CartCard";
 import { Button, Card, CardContent, Typography } from "@mui/material";
 import { useProductsAmountCart } from "../context/ProductsAmountCart";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import { FC, useEffect, useState } from "react";
 import purchasesApi from "../api/purchasesApi";
-
-const SHIPPING_PRICE: number = 2;
+import { useGetShippingFee } from "../api/hooks/useGetShippingFee";
+import Swal from "sweetalert2";
 
 interface OrdersProps {
-  handleNext: () => void
+  handleNext: () => void;
 }
-export const Orders: FC<OrdersProps> = ({
-  handleNext
-}) => {
+export const Orders: FC<OrdersProps> = ({ handleNext }) => {
   const { order, setOrder } = useGetOrderById();
   const { productsAmountCart } = useProductsAmountCart();
-  const [sumPrice, setSumPrice] = useState<number>(SHIPPING_PRICE);
+  const {shippingFee} = useGetShippingFee();
+  const [sumPrice, setSumPrice] = useState<number>(0);
 
   const handleRemoveProduct = async (id: number) => {
     if (order) {
@@ -33,17 +32,18 @@ export const Orders: FC<OrdersProps> = ({
       };
     });
   };
+  console.log(order)
 
   useEffect(() => {
-    if (!order) return;
+    if (!order || !shippingFee) return;
 
     const total = order.purchaseProducts.reduce(
       (sum, p) => sum + p.amount * p.product.price,
-      SHIPPING_PRICE
+      shippingFee
     );
 
     setSumPrice(total);
-  }, [order]);
+  }, [order, shippingFee]);
 
   return (
     <>
@@ -59,7 +59,7 @@ export const Orders: FC<OrdersProps> = ({
           flex={1}
           mr={4}
         >
-          <Card sx={{ display: "flex", width: 700, ml: 4 }}>
+          <Card sx={{ display: "flex", width: "38vw", ml: 4 }}>
             <CardContent sx={{ fontSize: 30, fontWeight: "bold" }}>
               <SellOutlinedIcon
                 sx={{ marginBlock: "auto", mr: 1, fontSize: 40 }}
@@ -69,7 +69,7 @@ export const Orders: FC<OrdersProps> = ({
           </Card>
 
           <Box mb={5}>
-            {order?.purchaseProducts.map((productPur) => (
+            {order && order.purchaseProducts.map((productPur) => (
               <CartCard
                 key={productPur.id}
                 product={productPur}
@@ -89,7 +89,7 @@ export const Orders: FC<OrdersProps> = ({
               flexDirection: "column",
               borderRadius: 10,
               boxShadow: 20,
-              position: "fixed"
+              position: "fixed",
             }}
           >
             <CardContent
@@ -109,7 +109,7 @@ export const Orders: FC<OrdersProps> = ({
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <Typography variant="h6">
-                  Shipping Fee: <strong>${SHIPPING_PRICE}</strong>
+                  Shipping Fee: <strong>${shippingFee}</strong>
                 </Typography>
 
                 <Typography variant="h6">Total Price:</Typography>
@@ -127,13 +127,20 @@ export const Orders: FC<OrdersProps> = ({
                 sx={{
                   mt: "auto",
                   alignSelf: "center",
-                  width: 400,
-                  height: 100,
+                  width: "65%",
+                  height: "30%",
                   fontSize: 30,
                   fontWeight: "bold",
                   borderRadius: 20,
                 }}
-                onClick={handleNext}
+                onClick={() => {
+                  if(order){
+                    handleNext();
+                  } else {
+                    Swal.fire("Oops!", "There are no products for checkout. Please try again.", "error")
+                  }
+                }
+                }
               >
                 Checkout Now
               </Button>

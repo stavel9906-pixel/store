@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { HistoryDetailsDTO } from "../../utils/types";
 import purchasesApi from "../purchasesApi";
+import { HistoryDetailsDTO } from "../../utils/DTOs";
+import { useOrderId } from "../../context/OrderId";
 
 export const useGetOrdersForUser = () => {
   const [orders, setOrders] = useState<HistoryDetailsDTO[]>([]);
+  const { orderId } = useOrderId();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -19,9 +21,6 @@ export const useGetOrdersForUser = () => {
           (order: HistoryDetailsDTO) => ({
             ...order,
             createdAt: new Date(order.createdAt).toLocaleDateString("he-IL"),
-            delivertime: order.deliverTime
-              ? new Date(order.deliverTime).toLocaleDateString("he-IL")
-              : "not delivered",
           })
         );
 
@@ -37,7 +36,7 @@ export const useGetOrdersForUser = () => {
     };
 
     fetchOrders();
-  }, []);
+  }, [orderId]);
 
   return { orders, setOrders };
 };

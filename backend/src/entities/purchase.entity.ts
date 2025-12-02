@@ -39,9 +39,14 @@ export class Purchase {
   )
   purchaseProducts!: PurchaseProduct[];
 
-  @Column({ name: "deliver_time" })
-  deliverTime?: Date;
-
-  @OneToOne(() => PurchaseAddress)
+  @OneToOne(() => PurchaseAddress, (address) => address.purchase)
   address: PurchaseAddress;
+
+  @Column({
+    name: "shipping_fee",
+    type: "numeric",
+    precision: 10,
+    scale: 2,
+  })
+  shippingFee: number;
 }

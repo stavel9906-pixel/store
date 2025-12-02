@@ -45,7 +45,10 @@ export const AddressForm: FC<AddressFormProps> = ({
     let allValid = true;
 
     const newFormData = formData.map((field) => {
-      const valid = field.validate(field.value);
+      const valid =
+        field.name === "requested Time To"
+          ? field.validate(field.value, formData)
+          : field.validate(field.value);
       if (!valid) allValid = false;
 
       return {
@@ -65,6 +68,11 @@ export const AddressForm: FC<AddressFormProps> = ({
         street: newFormData[AddressField.STREET].value,
         houseNumber: +newFormData[AddressField.HOUSE_NUMBER].value,
         orderId: orderId!,
+        date: newFormData[AddressField.DATE].value
+          ? new Date(newFormData[AddressField.DATE].value)
+          : undefined,
+        timeFrom: newFormData[AddressField.TIME_FROM].value,
+        timeTo: newFormData[AddressField.TIME_TO].value,
       };
       try {
         await addressOrderApi.purchaseAddress().insertAddress(orderDetails);
@@ -93,6 +101,7 @@ export const AddressForm: FC<AddressFormProps> = ({
         sx={{
           width: "70%",
           mt: "2%",
+          mb: "2%",
           borderRadius: 4,
           boxShadow: 6,
           p: 4,
@@ -282,6 +291,73 @@ export const AddressForm: FC<AddressFormProps> = ({
                   : ""
               }
             />
+            <Typography sx={{ fontSize: "1.2rem", fontWeight: "bold", mt: 4 }}>
+              Preferred Delivery Time
+            </Typography>
+
+            <Box
+              display="flex"
+              gap={3}
+              mt={2}
+            >
+              <TextField
+                label="Requested Date"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={formData[AddressField.DATE].value}
+                onChange={(e) =>
+                  handleChange(formData[AddressField.DATE].name, e.target.value)
+                }
+                error={formData[AddressField.DATE].showError}
+                helperText={
+                  formData[AddressField.DATE].showError
+                    ? formData[AddressField.DATE].errorMessage
+                    : ""
+                }
+                sx={{ width: "30%" }}
+              />
+
+              <TextField
+                label="From"
+                type="time"
+                InputLabelProps={{ shrink: true }}
+                value={formData[AddressField.TIME_FROM].value}
+                onChange={(e) =>
+                  handleChange(
+                    formData[AddressField.TIME_FROM].name,
+                    e.target.value
+                  )
+                }
+                error={formData[AddressField.TIME_FROM].showError}
+                helperText={
+                  formData[AddressField.TIME_FROM].showError
+                    ? formData[AddressField.TIME_FROM].errorMessage
+                    : ""
+                }
+                sx={{ width: "30%" }}
+              />
+
+              <TextField
+                label="To"
+                type="time"
+                InputLabelProps={{ shrink: true }}
+                value={formData[AddressField.TIME_TO].value}
+                onChange={(e) =>
+                  handleChange(
+                    formData[AddressField.TIME_TO].name,
+                    e.target.value
+                  )
+                }
+                error={formData[AddressField.TIME_TO].showError}
+                helperText={
+                  formData[AddressField.TIME_TO].showError
+                    ? formData[AddressField.TIME_TO].errorMessage
+                    : ""
+                }
+                sx={{ width: "30%" }}
+              />
+            </Box>
+
             <Box
               justifyContent={"center"}
               mt={"2rem"}

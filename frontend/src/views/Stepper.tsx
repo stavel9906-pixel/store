@@ -4,12 +4,14 @@ import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
-import { Orders } from "./Orders";
+import { Orders } from "../components/Orders";
 import { AddressForm } from "../components/AddressForm/AddressForm";
 import { CreditCardForm } from "../components/Payment/Payment";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { Typography } from "@mui/material";
 import { useNavigate } from "react-router";
+import { useOrderId } from "../context/OrderId";
+import { useProductsAmountCart } from "../context/ProductsAmountCart";
 
 const steps = ["Cart", "Place Order", "Pay", "Order Complete"];
 const CART_STEP = 0;
@@ -20,6 +22,9 @@ const COMPLETED_PAGE = 3;
 export default function HorizontalLinearStepper() {
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<number>());
+  const { setOrderId } = useOrderId();
+  const { setProductsAmountCart } = useProductsAmountCart();
+  
   const navigate = useNavigate();
 
   const isStepSkipped = (step: number) => {
@@ -40,10 +45,6 @@ export default function HorizontalLinearStepper() {
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
-
-  const handleFinish = () => {
-    
-  }
 
   return (
     <Box sx={{ width: "100%", mt: 5 }}>
@@ -98,10 +99,15 @@ export default function HorizontalLinearStepper() {
               fontSize: "1.5rem",
               mt: 2,
             }}
-            onClick={() => navigate("/dashboard")}
+            onClick={() => {
+              navigate("/dashboard");
+              setOrderId(null);
+              setProductsAmountCart(0);
+            }}
           >
             Finish
           </Button>
+          <Typography sx={{mt: 2, color: "gray"}}>* We will try to meet the delivery times you requested. If this will not be possible, we will contact you!</Typography>
         </>
       )}
     </Box>

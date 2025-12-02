@@ -44,18 +44,24 @@ export class PurchasesController {
     @Param("purchaseId") purchaseId: number,
     @Param("productId") productId: number
   ) {
-    return this.purchasesService.deleteProduct(+purchaseId, +productId);
+    return this.purchasesService.deleteProductFromOrder(
+      +purchaseId,
+      +productId
+    );
   }
 
   @Get("user")
   async getAllOrdersForUser(@Request() req) {
     const user = this.usersService.getUserFromToken(req.headers.authorization);
     console.log(user);
-    return await this.purchasesService.getUserOrdersDetails(user.id);
+    return await this.purchasesService.getUserOrdersDetails(user);
   }
 
   @Patch(":id/:status")
-  async updateStatus(@Param("id") id: number, @Param("status") status: PurchaseStatus) {
+  async updateStatus(
+    @Param("id") id: number,
+    @Param("status") status: PurchaseStatus
+  ) {
     try {
       await this.purchasesService.updateStatus(id, status);
     } catch (err: any) {

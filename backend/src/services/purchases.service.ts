@@ -10,7 +10,10 @@ import { PurchaseStatus } from "src/enums/purchaseStatus.enum";
 import { PurchaseProduct } from "src/entities/purchaseProduct.entity";
 import { ProductsService } from "./products.service";
 import { HistoryDetailsDTO } from "src/entities/DTO/historyDetailsDTO";
-const SHIPPING_PRICE: number = 2;
+import { ShippingService } from "./shipping.service";
+import { User } from "src/entities/user.entity";
+import { UserTokenDTO } from "src/entities/DTO/UserTokenDTO";
+import { UsersRole } from "src/enums/userRole.enum";
 
 @Injectable()
 export class PurchasesService {
@@ -19,7 +22,8 @@ export class PurchasesService {
     private purchaseRepo: Repository<Purchase>,
     @InjectRepository(PurchaseProduct)
     private purchaseProductRepo: Repository<PurchaseProduct>,
-    private productsService: ProductsService
+    private productsService: ProductsService,
+    private shippingService: ShippingService
   ) {}
 
   async getPendingPurchase(id: number): Promise<Purchase | null> {
@@ -35,19 +39,23 @@ export class PurchasesService {
   }
 
   async getOrderById(id: number): Promise<Purchase | null> {
-    const purchase = await this.purchaseRepo.findOne({
-      where: { id },
-      relations: [
-        "purchaseProducts",
-        "purchaseProducts.product",
-        "purchaseProducts.product.productType",
-      ],
-    });
+    if (id) {
+      const purchase = await this.purchaseRepo.findOne({
+        where: { id },
+        relations: [
+          "purchaseProducts",
+          "purchaseProducts.product",
+          "purchaseProducts.product.productType",
+        ],
+      });
 
-    return purchase;
+      return purchase;
+    }
+
+    return null;
   }
 
-  async deleteProduct(purchaseId: number, productId: number) {
+  async deleteProductFromOrder(purchaseId: number, productId: number) {
     try {
       const result = await this.purchaseProductRepo.delete({
         purchase: { id: purchaseId },
@@ -93,12 +101,15 @@ export class PurchasesService {
 
   async createPurchase(userId: number) {
     const existingPending = await this.getPendingPurchase(userId);
+    const shippingFee: number =
+      await this.shippingService.getActiveShippingFee();
 
     if (!existingPending) {
       const newPurchase = this.purchaseRepo.create({
         user: { userId },
         status: PurchaseStatus.PENDING,
         createdAt: new Date(),
+        shippingFee,
       });
 
       return this.purchaseRepo.save(newPurchase);
@@ -150,29 +161,71 @@ export class PurchasesService {
     return this.purchaseProductRepo.save(purchaseProduct);
   }
 
-  async getUserOrdersDetails(userId: number): Promise<HistoryDetailsDTO[]> {
+  async getUserOrdersDetails(user: UserTokenDTO): Promise<HistoryDetailsDTO[]> {
+    const userId = user.role === UsersRole.ADMIN ? undefined : user.id;
     const purchasesDetail = await this.purchaseRepo.find({
       where: { user: { userId: userId } },
       relations: [
         "purchaseProducts",
         "purchaseProducts.product",
         "purchaseProducts.product.productType",
-      ], // להוסיף של פרודאקט טייפ
+        "address",
+        "user",
+      ],
     });
 
-    console.log(purchasesDetail);
+    return purchasesDetail.map((order) => {
+      const { requestedDate, requestedTimeFrom, requestedTimeTo } =
+        order.address || {};
 
-    return purchasesDetail.map((order) => ({
-      orderId: order.id,
-      status: order.status,
-      createdAt: order.createdAt,
-      deliverTime: order.deliverTime,
-      totalPrice: order.purchaseProducts.reduce(
-        (sum, pp) => sum + pp.amount * pp.currentPrice,
-        0
-      ) + SHIPPING_PRICE,
-      quantity: order.purchaseProducts.reduce((sum, pp) => sum + pp.amount, 0),
-      purchaseProducts: order.purchaseProducts,
-    }));
+      const dateStr = requestedDate
+        ? new Date(requestedDate).toLocaleDateString("he-IL")
+        : "";
+      const timeFromStr = requestedTimeFrom
+        ? requestedTimeFrom.toString().slice(0, 5)
+        : "?";
+      const timeToStr = requestedTimeTo
+        ? requestedTimeTo.toString().slice(0, 5)
+        : "?";
+
+      let deliverTime = "not specified";
+
+      if (requestedDate || requestedTimeFrom || requestedTimeTo) {
+        if (dateStr && requestedTimeFrom && requestedTimeTo) {
+          deliverTime = `${dateStr}, ${timeFromStr}-${timeToStr}`;
+        } else if (dateStr && (requestedTimeFrom || requestedTimeTo)) {
+          deliverTime = `${dateStr}, ${timeFromStr}-${timeToStr}`;
+        } else if (dateStr) {
+          deliverTime = dateStr;
+        } else {
+          // אין תאריך, רק שעה או חלקי
+          deliverTime = `${timeFromStr}-${timeToStr}`;
+        }
+      }
+
+      console.log(deliverTime);
+
+      return {
+        orderId: order.id,
+        status: order.status,
+        createdAt: order.createdAt,
+        deliverTime,
+        totalPrice:
+          order.purchaseProducts.reduce(
+            (sum, pp) => sum + pp.amount * pp.currentPrice,
+            0
+          ) + Number(order.shippingFee ?? 0),
+        quantity: order.purchaseProducts.reduce(
+          (sum, pp) => sum + pp.amount,
+          0
+        ),
+        purchaseProducts: order.purchaseProducts,
+        userId: order.user.userId,
+        userName: order.address
+          ? `${order.address.firstName} ${order.address.lastName}`
+          : order.user.userName,
+        phone: order.address?.phone ?? "",
+      };
+    });
   }
 }
