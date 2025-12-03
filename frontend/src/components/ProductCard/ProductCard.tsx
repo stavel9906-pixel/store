@@ -19,16 +19,22 @@ import React from "react";
 import { useChangeAmount } from "../../hooks/useChangeAmount";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { ProductForm } from "../ProductForm/ProductForm";
 
 interface ProductCardProps {
   product: Product;
   isAdmin: boolean;
+  handleRemove: () => Promise<void>;
 }
 
-export const ProductCard: FC<ProductCardProps> = ({ product, isAdmin }) => {
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+export const ProductCard: FC<ProductCardProps> = ({
+  product,
+  isAdmin,
+  handleRemove,
+}) => {
+  const [openDetails, setOpenDetails] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
+  const handleCloseForm = () => setOpenForm(false);
   const changeAmount = useChangeAmount(product.productId);
 
   return (
@@ -42,50 +48,59 @@ export const ProductCard: FC<ProductCardProps> = ({ product, isAdmin }) => {
       }}
     >
       <Tooltip title="add to cart">
-      <IconButton
-        aria-label="addCart"
-        sx={{
-          position: "absolute",
-          top: 8,
-          right: 8,
-          backgroundColor: "#008cffff",
-          color: "white",
-          "&:hover": { backgroundColor: "#008cffff" },
-        }}
-        onClick={() => changeAmount(1)}
-      >
-        <AddShoppingCartIcon />
-      </IconButton>
+        <IconButton
+          aria-label="addCart"
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            backgroundColor: "#008cffff",
+            color: "white",
+            "&:hover": { backgroundColor: "#008cffff" },
+          }}
+          onClick={() => changeAmount(1)}
+        >
+          <AddShoppingCartIcon />
+        </IconButton>
       </Tooltip>
       {isAdmin && (
-        <> <Tooltip title="delete product">
-          <IconButton
-            sx={{
-              position: "absolute",
-              left: "2%",
-              top: "2%",
-              backgroundColor: "white",
-              color: "gray",
-              "&:hover": { backgroundColor: "white" },
-            }}
-          >
-            <DeleteIcon />
-          </IconButton>
+        <>
+          {" "}
+          <Tooltip title="delete product">
+            <IconButton
+              sx={{
+                position: "absolute",
+                left: "2%",
+                top: "2%",
+                backgroundColor: "white",
+                color: "gray",
+                "&:hover": { backgroundColor: "white" },
+              }}
+              onClick={handleRemove}
+            >
+              <DeleteIcon />
+            </IconButton>
           </Tooltip>
           <Tooltip title="edit product">
-          <IconButton
-            sx={{
-              position: "absolute",
-              left: "17%",
-              top: "2%",
-              backgroundColor: "white",
-              color: "gray",
-              "&:hover": { backgroundColor: "white" },
-            }}
-          >
-            <EditIcon />
-          </IconButton>
+            <IconButton
+              sx={{
+                position: "absolute",
+                left: "17%",
+                top: "2%",
+                backgroundColor: "white",
+                color: "gray",
+                "&:hover": { backgroundColor: "white" },
+              }}
+              onClick={() => setOpenForm(true)}
+            >
+              <EditIcon />
+            </IconButton>
           </Tooltip>
+          <ProductForm
+            open={openForm}
+            handleClose={handleCloseForm}
+            product={product}
+          />
         </>
       )}
       <CardMedia
@@ -113,15 +128,15 @@ export const ProductCard: FC<ProductCardProps> = ({ product, isAdmin }) => {
           variant="contained"
           color="primary"
           sx={{ mt: 1 }}
-          onClick={handleOpen}
+          onClick={() => setOpenDetails(true)}
         >
           Details
         </Button>
       </CardContent>
       <React.Fragment>
         <Dialog
-          open={open}
-          onClose={handleClose}
+          open={openDetails}
+          onClose={() => setOpenDetails(false)}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
@@ -135,7 +150,7 @@ export const ProductCard: FC<ProductCardProps> = ({ product, isAdmin }) => {
           </DialogContent>
           <DialogActions>
             <Button
-              onClick={handleClose}
+              onClick={() => setOpenDetails(false)}
               color="secondary"
             >
               Close

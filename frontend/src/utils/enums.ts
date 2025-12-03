@@ -39,3 +39,11 @@ export enum AuthField {
   PROFILE = 4,
   CURRENT_PASSWORD = 5,
 }
+
+export enum ProductField {
+  PRODUCT_NAME = 0,
+  PRODUCT_TYPE = 1,
+  PRICE = 2,
+  DESCRIPTION = 3,
+  IMAGE = 4,
+}

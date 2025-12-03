@@ -15,7 +15,6 @@ import * as bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { UpdateUserDTO } from "src/entities/DTO/updatedUserDTO";
 import { CloudinaryService } from "./cloudinary.service";
-import { profile } from "console";
 
 @Injectable()
 export class UsersService {

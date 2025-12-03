@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from "axios";
-import { Product } from "../utils/types";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/products",
@@ -8,7 +7,7 @@ const axiosInstance = axios.create({
 export default {
   products() {
     return {
-      getAll: (): Promise<AxiosResponse<Product[]>> =>
+      getAll: (): Promise<AxiosResponse<void>> =>
         axiosInstance.get(``),
     };
   },

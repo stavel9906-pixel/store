@@ -69,7 +69,7 @@ export const formFields: FormField[] = [
     name: "requested Time From",
     value: "",
     validate: (value: string) => {
-      if (!value) return true; // אופציונלי
+      if (!value) return true; 
       return /^([0-1]\d|2[0-3]):([0-5]\d)$/.test(value);
     },
     errorMessage: "Invalid start time",

@@ -11,9 +11,12 @@ import SortIcon from "@mui/icons-material/Sort";
 import SortByAlphaIcon from "@mui/icons-material/SortByAlpha";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useGetIsAdmin } from "../api/hooks/useGetIsAdmin";
+import adminApi from "../api/adminApi";
+import Swal from "sweetalert2";
+import { ProductForm } from "../components/ProductForm/ProductForm";
 
 export const Home = () => {
-  const { products } = useGetProducts();
+  const { products, setProducts } = useGetProducts();
   const { isAdmin } = useGetIsAdmin();
   const { productsType } = useGetProductsType();
   const navigate = useNavigate();
@@ -28,6 +31,8 @@ export const Home = () => {
   const [sortBy, setSortBy] = useState<"price" | "name" | null>(null);
   const [priceAsc, setPriceAsc] = useState(false);
   const [nameAsc, setNameAsc] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
+  const handleCloseForm = () => setOpenForm(false);
 
   const sortedProducts = useMemo(() => {
     if (!sortBy) return filteredProducts;
@@ -44,6 +49,23 @@ export const Home = () => {
       return 0;
     });
   }, [filteredProducts, nameAsc, priceAsc, sortBy]);
+
+  const handleRemove = async (productId: number) => {
+    try {
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
+      await adminApi.admin().deleteProduct(token, productId);
+      setProducts(
+        (prev) => prev?.filter((p) => p.productId !== productId) || []
+      );
+    } catch (err) {
+      Swal.fire(
+        "Oops!",
+        "There seems to be a problem deleting the product. Please try again.",
+        "error"
+      );
+    }
+  };
 
   useEffect(() => {
     if (!localStorage.getItem("token") && !sessionStorage.getItem("token")) {
@@ -81,18 +103,24 @@ export const Home = () => {
         <SortByAlphaIcon />
         <span> name</span>
       </Button>
-      {isAdmin && <Tooltip title="add product">
-        <IconButton
-          sx={{
-            position: "fixed",
-            right: "2%",
-            color: "#5d00ffff",
-            zIndex: 9999,
-          }}
-        >
-          <AddCircleIcon sx={{ fontSize: "5rem" }} />
-        </IconButton>
-      </Tooltip>}
+      {isAdmin && (
+        <>
+        <Tooltip title="add product">
+          <IconButton
+            sx={{
+              position: "fixed",
+              right: "2%",
+              color: "#5d00ffff",
+              zIndex: 1,
+            }}
+            onClick={() => setOpenForm(true)}
+          >
+            <AddCircleIcon sx={{ fontSize: "5rem" }} />
+          </IconButton>
+        </Tooltip>
+        <ProductForm open={openForm} handleClose={handleCloseForm} product={null} setProducts={setProducts}/>
+        </>
+      )}
 
       <section className="search-input">
         <SearchBar
@@ -122,6 +150,7 @@ export const Home = () => {
               key={product.productId}
               product={product}
               isAdmin={isAdmin}
+              handleRemove={() => handleRemove(product.productId)}
             />
           ))}
       </Box>

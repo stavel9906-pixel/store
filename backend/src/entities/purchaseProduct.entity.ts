@@ -18,6 +18,6 @@ export class PurchaseProduct {
   @Column({ type: 'int' })
   amount!: number;
 
-  @Column({ name: 'current_price' })
+  @Column({ name: 'current_price', type: "numeric" })
   currentPrice!: number;
 }

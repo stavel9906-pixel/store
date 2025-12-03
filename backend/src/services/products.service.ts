@@ -32,7 +32,10 @@ export class ProductsService {
   }
 
   async getAllProducts() {
-    return this.productRepo.find({ relations: ["productType"] });
+    return this.productRepo.find({ 
+      where: {forSale: true},
+      relations: ["productType"]
+     });
   }
 
   async getProductById(productId: number) {

@@ -66,6 +66,11 @@ export interface PurchaseAddress {
   houseNumber: string;
   city: City;
   phone: string;
+  firstName: string;
+  lastName: string;
+  date?: Date;
+  timeFrom?: string;
+  timeTo?: string;
 }
 
 export type FormField = {

@@ -1,5 +1,9 @@
 // ProductsTable.tsx
-import { DataGrid, GridCellParams, GridColDef } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridCellParams,
+  GridColDef,
+} from "@mui/x-data-grid";
 import { Box, Modal, Typography } from "@mui/material";
 import { useGetOrdersForUser } from "../api/hooks/useGetOrdersForUser";
 import { useState } from "react";
@@ -8,6 +12,7 @@ import ListAltIcon from "@mui/icons-material/ListAlt";
 import { HistoryDetailsDTO } from "../utils/DTOs";
 import { useGetIsAdmin } from "../api/hooks/useGetIsAdmin";
 import { PurchaseStatus } from "../utils/enums";
+import purchasesApi from "../api/purchasesApi";
 
 const style = {
   position: "absolute",
@@ -76,6 +81,7 @@ export const History = () => {
     setClickedOrder(params.row);
     setOpen(true);
   };
+
   return (
     <Box
       sx={{
@@ -92,6 +98,14 @@ export const History = () => {
         columns={columns}
         pagination
         pageSizeOptions={[5, 10, 25]}
+        processRowUpdate={async (newRow, oldRow) => {
+          if (newRow.status !== oldRow.status) {
+            await purchasesApi
+              .purchases()
+              .updateStatus(newRow.orderId, newRow.status);
+          }
+          return newRow;
+        }}
         autoHeight={false}
         showToolbar
         disableRowSelectionOnClick

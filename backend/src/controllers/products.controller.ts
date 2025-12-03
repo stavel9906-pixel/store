@@ -7,11 +7,13 @@ export class ProductsController {
 
   @Post("add-image")
   async addImage(@Query("id") id: number, @Query("fileUrl") fileUrl: string) {
-    return this.productsService.attachImageToProduct(id, fileUrl);
+    return await this.productsService.attachImageToProduct(id, fileUrl);
   }
 
   @Get()
   async getAll() {
-    return this.productsService.getAllProducts();
+    const products = await this.productsService.getAllProducts();
+    console.log(products);
+    return products;
   }
 }

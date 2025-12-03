@@ -45,8 +45,6 @@ export class Purchase {
   @Column({
     name: "shipping_fee",
     type: "numeric",
-    precision: 10,
-    scale: 2,
   })
   shippingFee: number;
 }

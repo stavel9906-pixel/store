@@ -18,7 +18,7 @@ const CustomAppTitle = () => (
   <CardContent sx={{ display: "flex", alignItems: "center" }}>
     <CardMedia
       component="img"
-      sx={{ width: 40 }}
+      sx={{ width: "3%" }}
       image="/src/images/icon.webp"
       alt="Logo"
     />

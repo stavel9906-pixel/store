@@ -19,7 +19,7 @@ export class Product {
   @JoinColumn({ name: "product_type" }) 
   productType!: ProductType;
 
-  @Column()
+  @Column({ type: "numeric", precision: 10, scale: 2 })
   price!: number;
 
   @Column()
@@ -27,4 +27,7 @@ export class Product {
 
   @Column({ name: "image_url", nullable: true })
   imageUrl?: string;
+
+  @Column({name: "for_sale", default: true})
+  forSale: boolean;
 }
