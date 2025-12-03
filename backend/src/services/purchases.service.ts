@@ -211,10 +211,10 @@ export class PurchasesService {
         createdAt: order.createdAt,
         deliverTime,
         totalPrice:
-          order.purchaseProducts.reduce(
+          Number((order.purchaseProducts.reduce(
             (sum, pp) => sum + pp.amount * pp.currentPrice,
             0
-          ) + Number(order.shippingFee ?? 0),
+          ) + Number(order.shippingFee ?? 0)).toFixed(2)),
         quantity: order.purchaseProducts.reduce(
           (sum, pp) => sum + pp.amount,
           0

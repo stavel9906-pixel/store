@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import { Product } from "../utils/types";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/admin",
@@ -27,7 +28,7 @@ export default {
       addProduct: (
         formData: FormData,
         token: string | null
-      ): Promise<AxiosResponse<void>> =>
+      ): Promise<AxiosResponse<Product>> =>
         axiosInstance.post("/products", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -37,7 +38,7 @@ export default {
       updateProduct: (
         formData: FormData,
         token: string | null
-      ): Promise<AxiosResponse<void>> =>
+      ): Promise<AxiosResponse<Product>> =>
         axiosInstance.patch("/products", formData, {
           headers: {
             "Content-Type": "multipart/form-data",

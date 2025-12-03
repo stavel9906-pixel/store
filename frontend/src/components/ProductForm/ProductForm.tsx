@@ -49,7 +49,7 @@ export const ProductForm = ({
   open,
   handleClose,
   product,
-  setProducts
+  setProducts,
 }: ProductFormProps) => {
   const [form, setForm] = useState(productFormFields);
   const { productsType } = useGetProductsType();
@@ -57,7 +57,7 @@ export const ProductForm = ({
   const [errorAlert, setErrorAlert] = useState(false);
 
   useEffect(() => {
-    if (product) {
+    if (product && product.productType) {
       setForm((prev) =>
         prev.map((field) => {
           switch (field.name) {
@@ -66,7 +66,9 @@ export const ProductForm = ({
             case "productType":
               return {
                 ...field,
-                value: product.productType.id.toString() || "",
+                value: product.productType?.id
+                  ? product.productType.id.toString()
+                  : "",
               };
             case "price":
               return { ...field, value: product.price.toString() || "" };
@@ -79,6 +81,9 @@ export const ProductForm = ({
           }
         })
       );
+    } else {
+      // מוצר חדש — לאפס את כל השדות
+      setForm(productFormFields.map((f) => ({ ...f, value: "" })));
     }
   }, [product]);
 
@@ -118,15 +123,25 @@ export const ProductForm = ({
       try {
         const token =
           localStorage.getItem("token") || sessionStorage.getItem("token");
-        console.log(formData.entries)
+        console.log(formData.entries);
         if (product) {
           formData.append(
             "productId",
             product ? product.productId.toString() : ""
           );
-          await adminApi.admin().updateProduct(formData, token);
+          const updatedProduct: Product = (
+            await adminApi.admin().updateProduct(formData, token)
+          ).data;
+          setProducts((prev) =>
+            prev.map((p) =>
+              p.productId === updatedProduct.productId ? updatedProduct : p
+            )
+          );
         } else {
-          await adminApi.admin().addProduct(formData, token);
+          const newProduct: Product = (
+            await adminApi.admin().addProduct(formData, token)
+          ).data;
+          setProducts((prev) => [...prev, newProduct]);
         }
         handleClose();
       } catch (err) {

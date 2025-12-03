@@ -15,7 +15,7 @@ export const useSearch = (searchedArray: Product[]) => {
       // פילטור לפי קטגוריות
       const matchesType =
         selectedTypes.length === 0 || // אם לא נבחרו קטגוריות, הכל עובר
-        selectedTypes.includes(product.productType.name);
+        selectedTypes.includes(product.productType.id.toString());
 
       return matchesSearch && matchesType;
     });

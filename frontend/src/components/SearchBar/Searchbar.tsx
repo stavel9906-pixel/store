@@ -9,7 +9,8 @@ interface SearchBarProps {
 
 export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
   ({ searchResult, searchAction, placeHolder }, ref) => (
-    <div className="d-flex align-items-stretch w-100 col-md-6 offset-md-3">
+    <>
+    <div className="flex-grow-1">
       <div
         className="form-outline flex-grow-1"
         data-mdb-input-init
@@ -24,14 +25,15 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
           onChange={searchAction}
         />
       </div>
-      <button
+      
+    </div>
+    <button
         type="button"
         className="btn btn-primary ms-2"
         data-mdb-ripple-init
       >
         <SearchIcon />
-      </button>
-    </div>
+      </button></>
   )
 );
 

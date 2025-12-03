@@ -25,12 +25,14 @@ interface ProductCardProps {
   product: Product;
   isAdmin: boolean;
   handleRemove: () => Promise<void>;
+  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
 }
 
 export const ProductCard: FC<ProductCardProps> = ({
   product,
   isAdmin,
   handleRemove,
+  setProducts,
 }) => {
   const [openDetails, setOpenDetails] = useState(false);
   const [openForm, setOpenForm] = useState(false);
@@ -100,6 +102,7 @@ export const ProductCard: FC<ProductCardProps> = ({
             open={openForm}
             handleClose={handleCloseForm}
             product={product}
+            setProducts={setProducts}
           />
         </>
       )}

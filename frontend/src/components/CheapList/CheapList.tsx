@@ -2,23 +2,27 @@ import CheckIcon from "@mui/icons-material/Check";
 import Box from "@mui/joy/Box";
 import Checkbox from "@mui/joy/Checkbox";
 import Chip from "@mui/joy/Chip";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import * as React from "react";
 import { ProductType } from "../../utils/types";
 import { FC } from "react";
 import { CssVarsProvider } from "@mui/joy/styles";
 import Button from "@mui/joy/Button";
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 interface CheapListProps {
   productsType: ProductType[];
   selected: string[];
-  setSelected: React.Dispatch<React.SetStateAction<string[]>>
+  setSelected: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const MAX_PRODUCTS_TYPE_LINE = 10;
 
-export const CheapList: FC<CheapListProps> = ({ productsType, selected, setSelected }) => {
+export const CheapList: FC<CheapListProps> = ({
+  productsType,
+  selected,
+  setSelected,
+}) => {
   const [expanded, setExpanded] = React.useState(false);
 
   const visibleCount = expanded ? productsType.length : MAX_PRODUCTS_TYPE_LINE;
@@ -33,8 +37,8 @@ export const CheapList: FC<CheapListProps> = ({ productsType, selected, setSelec
             aria-labelledby="fav-movie"
             sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
           >
-            {productsType.slice(0, visibleCount).map(({ name }) => {
-              const checked = selected.includes(name);
+            {productsType.slice(0, visibleCount).map(({ id, name }) => {
+              const checked = selected.includes(id.toString());
               return (
                 <Chip
                   key={name}
@@ -54,10 +58,10 @@ export const CheapList: FC<CheapListProps> = ({ productsType, selected, setSelec
                     label={name}
                     checked={checked}
                     onChange={(event) => {
-                      setSelected((names) =>
+                      setSelected((ids) =>
                         !event.target.checked
-                          ? names.filter((n) => n !== name)
-                          : [...names, name]
+                          ? ids.filter((n) => n !== id.toString())
+                          : [...ids, id.toString()]
                       );
                     }}
                   />

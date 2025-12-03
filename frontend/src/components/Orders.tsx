@@ -38,11 +38,11 @@ export const Orders: FC<OrdersProps> = ({ handleNext }) => {
     if (!order || !shippingFee) return;
 
     const total = order.purchaseProducts.reduce(
-      (sum, p) => sum + p.amount * p.product.price,
+      (sum, p) => sum + p.amount * p.currentPrice,
       shippingFee
     );
 
-    setSumPrice(total);
+    setSumPrice(Number(total.toFixed(2)));
   }, [order, shippingFee]);
 
   return (

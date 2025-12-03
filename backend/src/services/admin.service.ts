@@ -3,13 +3,15 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Product } from "src/entities/product.entity";
 import { CloudinaryService } from "./cloudinary.service";
+import { ProductsTypeService } from "./productsType.service";
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
-    private cloudinaryService: CloudinaryService
+    private cloudinaryService: CloudinaryService,
+    private productTypeService: ProductsTypeService,
   ) {}
 
   async deleteProduct(productId: number) {
@@ -42,14 +44,19 @@ export class AdminService {
         Logger.error("Cloudinary upload failed:", error);
       }
     }
+
+    const type = await this.productTypeService.getTypeById(
+      +product.productType
+    );
+
     currentProduct.productName = product.productName;
     currentProduct.description = product.description;
-    currentProduct.productType = product.productType;
+    currentProduct.productType = type;
     currentProduct.price = product.price;
 
-    await this.productRepo.save(currentProduct);
+    const savedProduct = await this.productRepo.save(currentProduct);
 
-    return { message: "Profile updated successfully" };
+    return savedProduct;
   }
 
   async addProduct(product: Product, file?: Express.Multer.File) {
@@ -62,21 +69,16 @@ export class AdminService {
       }
     }
 
-    await this.productRepo
-      .createQueryBuilder("product")
-      .insert()
-      .into(Product)
-      .values([
-        {
-          price: product.price,
-          productName: product.productName,
-          productType: { id: +product.productType },
-          imageUrl: product.imageUrl,
-          description: product.description,
-        },
-      ])
-      .execute();
+    const productToSave = this.productRepo.create({
+      price: product.price,
+      productName: product.productName,
+      productType: { id: +product.productType },
+      imageUrl: product.imageUrl,
+      description: product.description,
+    });
 
-    return { message: "Product added successfully" };
+    const savedProduct = await this.productRepo.save(productToSave);
+
+    return savedProduct;
   }
 }

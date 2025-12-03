@@ -2,7 +2,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGetProducts } from "../api/hooks/useGetProducts";
 import { useNavigate } from "react-router";
 import { ProductCard } from "../components/ProductCard/ProductCard";
-import { Box, Button, IconButton, Tooltip } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  TextField,
+  Tooltip,
+} from "@mui/material";
 import { SearchBar } from "../components/SearchBar";
 import { useSearch } from "../hooks/useSearch";
 import { CheapList } from "../components/CheapList/CheapList";
@@ -14,6 +24,7 @@ import { useGetIsAdmin } from "../api/hooks/useGetIsAdmin";
 import adminApi from "../api/adminApi";
 import Swal from "sweetalert2";
 import { ProductForm } from "../components/ProductForm/ProductForm";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 export const Home = () => {
   const { products, setProducts } = useGetProducts();
@@ -32,6 +43,8 @@ export const Home = () => {
   const [priceAsc, setPriceAsc] = useState(false);
   const [nameAsc, setNameAsc] = useState(false);
   const [openForm, setOpenForm] = useState(false);
+  const [openTypeForm, setOpenTypeForm] = useState(false);
+  const [newTypeName, setNewTypeName] = useState("");
   const handleCloseForm = () => setOpenForm(false);
 
   const sortedProducts = useMemo(() => {
@@ -105,30 +118,119 @@ export const Home = () => {
       </Button>
       {isAdmin && (
         <>
-        <Tooltip title="add product">
-          <IconButton
-            sx={{
-              position: "fixed",
-              right: "2%",
-              color: "#5d00ffff",
-              zIndex: 1,
-            }}
-            onClick={() => setOpenForm(true)}
-          >
-            <AddCircleIcon sx={{ fontSize: "5rem" }} />
-          </IconButton>
-        </Tooltip>
-        <ProductForm open={openForm} handleClose={handleCloseForm} product={null} setProducts={setProducts}/>
+          <Tooltip title="add product">
+            <IconButton
+              sx={{
+                position: "fixed",
+                right: "2%",
+                color: "#5d00ffff",
+                zIndex: 1,
+              }}
+              onClick={() => setOpenForm(true)}
+            >
+              <AddCircleIcon sx={{ fontSize: "5rem" }} />
+            </IconButton>
+          </Tooltip>
+          <ProductForm
+            open={openForm}
+            handleClose={handleCloseForm}
+            product={null}
+            setProducts={setProducts}
+          />
         </>
       )}
 
-      <section className="search-input">
+      <section className="search-input d-flex align-items-center w-100 col-md-6 offset-md-3">
         <SearchBar
           ref={inputRef}
           searchAction={onSearch}
           searchResult={search}
           placeHolder={"Search"}
         />
+        {isAdmin && (
+          <>
+            <Tooltip title="Add New Product Type">
+              <IconButton
+                onClick={() => setOpenTypeForm(true)}
+                className="col-md-2"
+                sx={{
+                  bgcolor: "#ffe0b2", // צבע עדין (בהיר יותר מהצבעים הקיימים)
+                  color: "#ff0044ff", // צבע האייקון משתלב עם העמוד
+                  width: "2rem",
+                  height: "2rem",
+                  ml: "1.5rem",
+                  "&:hover": {
+                    bgcolor: "#ffd699",
+                    transform: "scale(1.05)",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                  },
+                  transition: "0.2s",
+                }}
+              >
+                <AddCircleOutlineIcon sx={{ fontSize: 40 }} />
+              </IconButton>
+            </Tooltip>
+            <Dialog
+              open={openTypeForm}
+              onClose={() => setOpenTypeForm(false)}
+              PaperProps={{
+                sx: {
+                  borderRadius: 3,
+                  p: 2,
+                  backgroundColor: "#fff9f0",
+                  minWidth: 400,
+                },
+              }}
+            >
+              <DialogTitle sx={{ fontWeight: "bold", color: "#ff6f00" }}>
+                Add New Product Type
+              </DialogTitle>
+              <DialogContent>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  label="Type Name"
+                  fullWidth
+                  variant="outlined"
+                  value={newTypeName}
+                  onChange={(e) => setNewTypeName(e.target.value)}
+                />
+              </DialogContent>
+              <DialogActions
+                sx={{ justifyContent: "space-between", px: 3, pb: 2 }}
+              >
+                <Button
+                  onClick={() => setOpenTypeForm(false)}
+                  sx={{
+                    color: "#ff6f00",
+                    borderColor: "#ff6f00",
+                    borderRadius: 2,
+                    "&:hover": {
+                      backgroundColor: "#ffe0b2",
+                      borderColor: "#ff6f00",
+                    },
+                  }}
+                  variant="outlined"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  sx={{
+                    bgcolor: "#ff6f00",
+                    color: "white",
+                    borderRadius: 2,
+                    "&:hover": {
+                      bgcolor: "#e65100",
+                    },
+                  }}
+                  variant="contained"
+                >
+                  Add
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </>
+        )}
       </section>
       <CheapList
         productsType={productsType}
@@ -150,6 +252,7 @@ export const Home = () => {
               key={product.productId}
               product={product}
               isAdmin={isAdmin}
+              setProducts={setProducts}
               handleRemove={() => handleRemove(product.productId)}
             />
           ))}

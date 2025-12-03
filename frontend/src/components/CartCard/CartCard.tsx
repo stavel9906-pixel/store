@@ -91,11 +91,18 @@ export const CartCard: FC<CartCardProps> = ({
                   overlay={false}
                   underline="none"
                   href="#"
-                  sx={{ color: "text.tertiary" }}
+                  sx={{
+                    color: "text.tertiary",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2, 
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}
                 >
                   {product.product.description || "Description not available"}
                 </Link>
               </Typography>
+
               <Chip
                 variant="outlined"
                 color="primary"
@@ -129,7 +136,7 @@ export const CartCard: FC<CartCardProps> = ({
                     setCurrentAmount((curr) => curr - product.amount);
                     if (setSumPrice) {
                       setSumPrice(
-                        (curr) => curr - product.product.price * product.amount
+                        (curr) => curr - product.currentPrice * product.amount
                       );
                     }
                     setProductsAmountCart(
@@ -146,14 +153,16 @@ export const CartCard: FC<CartCardProps> = ({
                 sx={{ pointerEvents: "auto", mt: "auto" }}
               >
                 {!onRemove ? (
-                  <h5>amount:   </h5>
+                  <h5>amount: </h5>
                 ) : (
                   <Button
                     size="sm"
                     onClick={() => {
                       changeAmount(-1);
                       if (setSumPrice) {
-                        setSumPrice((curr) => curr - product.product.price);
+                        setSumPrice((curr) =>
+                          Number((+curr - +product.currentPrice).toFixed(2))
+                        );
                       }
                       setCurrentAmount((curr) => curr - 1);
                     }}
@@ -177,27 +186,33 @@ export const CartCard: FC<CartCardProps> = ({
                     const diff = newAmount - currentAmount;
                     changeAmount(diff);
                     if (setSumPrice) {
-                      setSumPrice(
-                        (curr) => curr + diff * product.product.price
+                      setSumPrice((curr) =>
+                        Number(
+                          (+curr + diff * +product.currentPrice).toFixed(2)
+                        )
                       );
                     }
                     setCurrentAmount(newAmount);
                   }}
                 />
 
-                {onRemove && <Button
-                  size="sm"
-                  onClick={() => {
-                    changeAmount(1);
-                    if (setSumPrice) {
-                      setSumPrice((curr) => curr + product.product.price);
-                    }
-                    setCurrentAmount((curr) => curr + 1);
-                  }}
-                  sx={{ minWidth: 0 }}
-                >
-                  <AddIcon fontSize="small" />
-                </Button>}
+                {onRemove && (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      changeAmount(1);
+                      if (setSumPrice) {
+                        setSumPrice((curr) =>
+                          Number((+curr + +product.currentPrice).toFixed(2))
+                        );
+                      }
+                      setCurrentAmount((curr) => curr + 1);
+                    }}
+                    sx={{ minWidth: 0 }}
+                  >
+                    <AddIcon fontSize="small" />
+                  </Button>
+                )}
               </Box>
             </Box>
           </Card>
