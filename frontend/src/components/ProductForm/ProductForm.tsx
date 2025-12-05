@@ -82,7 +82,6 @@ export const ProductForm = ({
         })
       );
     } else {
-      // מוצר חדש — לאפס את כל השדות
       setForm(productFormFields.map((f) => ({ ...f, value: "" })));
     }
   }, [product]);
@@ -123,7 +122,6 @@ export const ProductForm = ({
       try {
         const token =
           localStorage.getItem("token") || sessionStorage.getItem("token");
-        console.log(formData.entries);
         if (product) {
           formData.append(
             "productId",
@@ -143,6 +141,9 @@ export const ProductForm = ({
           ).data;
           setProducts((prev) => [...prev, newProduct]);
         }
+        setForm(productFormFields.map((f) => ({ ...f, value: "" })));
+        if (fileInputRef.current) fileInputRef.current.value = "";
+
         handleClose();
       } catch (err) {
         setErrorAlert(true);
@@ -187,7 +188,7 @@ export const ProductForm = ({
               alignItems: "center",
               justifyContent: "center",
               mt: "3rem",
-              mb: "3rem",
+              flexDirection: "column"
             }}
             className="col-md-5"
           >
@@ -236,12 +237,12 @@ export const ProductForm = ({
                 </Typography>
               )}
             </label>
+            {form[ProductField.IMAGE].showError && (
+              <Typography color="error">
+                {form[ProductField.IMAGE].errorMessage}
+              </Typography>
+            )}
           </Box>
-          {form[ProductField.IMAGE].showError && (
-            <Typography color="error">
-              {form[ProductField.IMAGE].errorMessage}
-            </Typography>
-          )}
 
           {/* RIGHT SIDE — FORM FIELDS */}
           <Box className="col-md-6">

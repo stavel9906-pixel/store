@@ -3,6 +3,7 @@ import { Home } from "../views/Home";
 import { Login } from "../views/Login/Login";
 import { History } from "../views/History";
 import { Profile } from "../views/Profile";
+import Chat from "../views/Chat";
 
 export interface Page {
   path: string;
@@ -35,5 +36,10 @@ export const routes: Page[] = [
     path: "/profile",
     element: <Profile />,
     name: "profile",
+  },
+  {
+    path: "/chat",
+    element: <Chat />,
+    name: "chat",
   },
 ];

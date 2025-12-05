@@ -20,4 +20,12 @@ export class ProductsTypeService {
     if (!type) throw new NotFoundException("Product type not found");
     return type;
   }
+
+  async addProductType(name: string) {
+    const type = this.productTypeRepo.create({
+      name: name
+    });
+
+    return await this.productTypeRepo.save(type);
+  }
 }

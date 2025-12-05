@@ -5,12 +5,7 @@ import { ProductCard } from "../components/ProductCard/ProductCard";
 import {
   Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   IconButton,
-  TextField,
   Tooltip,
 } from "@mui/material";
 import { SearchBar } from "../components/SearchBar";
@@ -25,11 +20,12 @@ import adminApi from "../api/adminApi";
 import Swal from "sweetalert2";
 import { ProductForm } from "../components/ProductForm/ProductForm";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { TypeForm } from "../components/TypeForm";
 
 export const Home = () => {
   const { products, setProducts } = useGetProducts();
   const { isAdmin } = useGetIsAdmin();
-  const { productsType } = useGetProductsType();
+  const { productsType, setProductsType } = useGetProductsType();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const {
@@ -44,7 +40,6 @@ export const Home = () => {
   const [nameAsc, setNameAsc] = useState(false);
   const [openForm, setOpenForm] = useState(false);
   const [openTypeForm, setOpenTypeForm] = useState(false);
-  const [newTypeName, setNewTypeName] = useState("");
   const handleCloseForm = () => setOpenForm(false);
 
   const sortedProducts = useMemo(() => {
@@ -170,65 +165,7 @@ export const Home = () => {
                 <AddCircleOutlineIcon sx={{ fontSize: 40 }} />
               </IconButton>
             </Tooltip>
-            <Dialog
-              open={openTypeForm}
-              onClose={() => setOpenTypeForm(false)}
-              PaperProps={{
-                sx: {
-                  borderRadius: 3,
-                  p: 2,
-                  backgroundColor: "#fff9f0",
-                  minWidth: 400,
-                },
-              }}
-            >
-              <DialogTitle sx={{ fontWeight: "bold", color: "#ff6f00" }}>
-                Add New Product Type
-              </DialogTitle>
-              <DialogContent>
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  label="Type Name"
-                  fullWidth
-                  variant="outlined"
-                  value={newTypeName}
-                  onChange={(e) => setNewTypeName(e.target.value)}
-                />
-              </DialogContent>
-              <DialogActions
-                sx={{ justifyContent: "space-between", px: 3, pb: 2 }}
-              >
-                <Button
-                  onClick={() => setOpenTypeForm(false)}
-                  sx={{
-                    color: "#ff6f00",
-                    borderColor: "#ff6f00",
-                    borderRadius: 2,
-                    "&:hover": {
-                      backgroundColor: "#ffe0b2",
-                      borderColor: "#ff6f00",
-                    },
-                  }}
-                  variant="outlined"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  sx={{
-                    bgcolor: "#ff6f00",
-                    color: "white",
-                    borderRadius: 2,
-                    "&:hover": {
-                      bgcolor: "#e65100",
-                    },
-                  }}
-                  variant="contained"
-                >
-                  Add
-                </Button>
-              </DialogActions>
-            </Dialog>
+            <TypeForm open={openTypeForm} handleClose={() => setOpenTypeForm(false)} setProductType={setProductsType}/>
           </>
         )}
       </section>

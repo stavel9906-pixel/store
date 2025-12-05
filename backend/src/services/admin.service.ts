@@ -35,7 +35,6 @@ export class AdminService {
 
     if (!currentProduct) throw new NotFoundException("Product not found");
 
-    // --- תמונת מוצר ---
     if (file) {
       try {
         const result = await this.cloudinaryService.uploadFileImage(file);
@@ -69,10 +68,14 @@ export class AdminService {
       }
     }
 
+    const type = await this.productTypeService.getTypeById(
+      +product.productType
+    );
+
     const productToSave = this.productRepo.create({
       price: product.price,
       productName: product.productName,
-      productType: { id: +product.productType },
+      productType: type,
       imageUrl: product.imageUrl,
       description: product.description,
     });
@@ -80,5 +83,9 @@ export class AdminService {
     const savedProduct = await this.productRepo.save(productToSave);
 
     return savedProduct;
+  }
+
+  async insertNewProductType (name: string) {
+    return await this.productTypeService.addProductType(name);
   }
 }

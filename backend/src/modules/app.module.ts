@@ -18,6 +18,9 @@ import { PurchaseAddressModule } from "./purchaseAddress.module";
 import { ShippingModule } from "./shipping.module";
 import { ShippingConfig } from "src/entities/shipping-config.entity";
 import { AdminModule } from "./admin.module";
+import { ChatModule } from "src/chat/chat.module";
+import { Chat } from "src/entities/chat.entity";
+import { Message } from "src/entities/messages.entity";
 
 @Module({
   imports: [
@@ -39,6 +42,8 @@ import { AdminModule } from "./admin.module";
         City,
         Country,
         ShippingConfig,
+        Chat,
+        Message
       ],
       logging: true,
       synchronize: false,
@@ -53,6 +58,7 @@ import { AdminModule } from "./admin.module";
     PurchaseAddressModule, 
     ShippingModule,
     AdminModule,
+    ChatModule,
   ],
 })
 export class AppModule {}

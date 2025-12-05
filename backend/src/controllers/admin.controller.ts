@@ -53,7 +53,7 @@ export class AdminController {
         throw new HttpException(err.message, HttpStatus.NOT_FOUND);
       }
       throw new HttpException(
-        "Error while updating order password",
+        "Error while updating product",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -72,7 +72,19 @@ export class AdminController {
         throw new HttpException(err.message, HttpStatus.NOT_FOUND);
       }
       throw new HttpException(
-        "Error while updating order password",
+        "Error while adding product",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Post("product-type")
+  async addProductType(@Query("name") name: string) {
+    try {
+      return await this.adminService.insertNewProductType(name);
+    } catch (err: any) {
+      throw new HttpException(
+        "Error while adding product type",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

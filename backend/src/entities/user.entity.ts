@@ -1,6 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { Purchase } from "./purchase.entity";
 import { UsersRole } from "src/enums/userRole.enum";
+import { Chat } from "./chat.entity";
+import { Message } from "./messages.entity";
 
 @Entity({ name: "users" })
 export class User {
@@ -24,4 +26,10 @@ export class User {
 
   @OneToMany(() => Purchase, (purchase) => purchase.user)
   purchases?: Purchase[];
+
+  @OneToMany(() => Chat, (chat) => chat.user)
+  chats!: Chat[];
+
+  @OneToMany(() => Message, (message) => message.sender)
+  messages!: Message[];
 }

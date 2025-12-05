@@ -80,3 +80,35 @@ export type FormField = {
   errorMessage: string;
   showError: boolean;
 };
+
+export interface ChatMessage {
+  id: string;
+  sender: User;
+  reciver?: User;
+  text: string;
+  timestamp: number;
+}
+
+export interface Message {
+  id: number;
+  chat: Chat;
+  sender: UserDTO;
+  text: string;
+  timestamp: number;
+}
+
+export interface Chat {
+  id: number;
+  user: UserDTO;
+  isOpen: boolean;
+  messages?: Message[];
+}
+
+export interface UserDTO {
+  userId: number;
+  userName: string;
+  email: string;
+  password?: string;
+  role: UsersRole;
+  profile?: string;
+}

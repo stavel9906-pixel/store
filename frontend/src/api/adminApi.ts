@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { Product } from "../utils/types";
+import { Product, ProductType } from "../utils/types";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/admin",
@@ -45,6 +45,23 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         }),
+      addNewProductType: (
+        token: string | null,
+        name: string
+      ): Promise<AxiosResponse<ProductType>> => {
+        return axiosInstance.post(
+          `/product-type`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: {
+              name: name,
+            },
+          }
+        );
+      },
     };
   },
 };
