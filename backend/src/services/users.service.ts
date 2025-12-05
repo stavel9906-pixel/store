@@ -111,39 +111,47 @@ export class UsersService {
   async googleSignIn(
     email: string,
     userName: string,
-    profile: string | undefined
+    googleProfileUrl: string | undefined
   ): Promise<any> {
-    const user = await this.usersRepository.findOne({ where: { email } });
+    let user = await this.usersRepository.findOne({ where: { email } });
+
     if (!user) {
-      const newUser = this.usersRepository.create({
+      user = this.usersRepository.create({
         userName,
         email,
         role: UsersRole.USER,
-        profile,
+        profile: googleProfileUrl,
       });
 
-      await this.usersRepository.save(newUser);
-    } else {
-      await this.usersRepository
-        .createQueryBuilder("user")
-        .update(User)
-        .set({
-          profile,
-        })
-        .where("user_id = :userId", { userId: user.userId })
-        .execute();
+      await this.usersRepository.save(user);
+    }
+
+    if (googleProfileUrl) {
+      try {
+        const uploaded = await this.cloudinaryService.uploadImage(
+          googleProfileUrl,
+          `user_${user.userId}` 
+        );
+
+        user.profile = uploaded.secure_url;
+
+        await this.usersRepository.save(user);
+      } catch (err) {
+        Logger.error("Cloudinary upload failed:", err);
+      }
     }
 
     const token = jwt.sign(
       {
         name: userName,
-        role: !user ? UsersRole.USER : user.role,
-        id: user?.userId,
-        profile: user?.profile,
+        role: user.role,
+        id: user.userId,
+        profile: user.profile,
         email,
       },
       process.env.SECRET_KEY
     );
+
     Logger.log(`User signed in with google: ${email}`);
 
     return {
@@ -171,7 +179,6 @@ export class UsersService {
 
     if (!currentUser) throw new NotFoundException("User not found");
 
-    // --- סיסמא ---
     if (currentUser.password) {
       // אם יש סיסמא קיימת נבדוק התאמה
       const isMatch = await bcrypt.compare(
@@ -186,7 +193,6 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(newUser.newPassword, 10);
     currentUser.password = hashedPassword;
 
-    // --- תמונת פרופיל ---
     if (file) {
       try {
         const result = await this.cloudinaryService.uploadFileImage(file);

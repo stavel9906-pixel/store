@@ -29,7 +29,6 @@ export class CloudinaryService {
           resolve(result);
         }
       );
-      // ממירים את ה-buffer ל‑stream
       Readable.from(file.buffer).pipe(uploadStream);
     });
   }

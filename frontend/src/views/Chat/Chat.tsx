@@ -9,18 +9,19 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
-import { ChatBubble } from "../components/ChatBubble";
-import { useGetUserFromToken } from "../api/hooks/useGetUserFromToken";
-import type { Chat, Message } from "../utils/types";
-import { UsersRole } from "../utils/enums";
+import { ChatBubble } from "../../components/ChatBubble";
+import { useGetUserFromToken } from "../../api/hooks/useGetUserFromToken";
+import type { Chat, Message } from "../../utils/types";
+import { UsersRole } from "../../utils/enums";
 import AddCommentOutlinedIcon from "@mui/icons-material/AddCommentOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import { getDateLabel } from "./getDateLabel";
 
 const socket: Socket = io("http://localhost:3000", {
   transports: ["websocket"],
 });
 
-export default function Chat() {
+export const ChatPage = () => {
   const { user } = useGetUserFromToken();
   const [openChats, setOpenChats] = useState<Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
@@ -41,6 +42,7 @@ export default function Chat() {
 
   useEffect(() => {
     if (!user) return;
+    console.log(user);
 
     socket.emit("identify", { userId: user.id, role: user.role });
 
@@ -253,26 +255,47 @@ export default function Chat() {
             }}
           >
             <Box sx={{ flex: 1, overflowY: "auto", mb: 2 }}>
-              {messages.map((msg) => {
-                console.log("Rendering message:", {
-                  msgId: msg.id,
-                  senderId: msg.sender.userId,
-                  currentUserId: user.id,
-                  isOwn: msg.sender.userId === user.id,
-                  text: msg.text,
-                });
+              {messages.map((msg, index) => {
+                const prevMsg = messages[index - 1];
+                const currentLabel = getDateLabel(msg.timestamp);
+                const prevLabel = prevMsg
+                  ? getDateLabel(prevMsg.timestamp)
+                  : null;
+
+                const showDateLabel = currentLabel !== prevLabel;
 
                 return (
-                  <ChatBubble
-                    key={msg.id}
-                    avatarUrl={msg.sender.profile || ""}
-                    name={msg.sender.userName}
-                    text={msg.text}
-                    timestamp={`${new Date(msg.timestamp).toLocaleTimeString().split(":")[0]}:${new Date(msg.timestamp).toLocaleTimeString().split(":")[1]}`}
-                    isOwn={msg.sender.userId === user.id}
-                  />
+                  <div key={msg.id}>
+                    {showDateLabel && (
+                      <Typography
+                        sx={{
+                          textAlign: "center",
+                          color: "gray",
+                          fontSize: "0.9rem",
+                          my: 1,
+                        }}
+                      >
+                        {currentLabel}
+                      </Typography>
+                    )}
+
+                    <ChatBubble
+                      avatarUrl={msg.sender.profile || ""}
+                      name={msg.sender.userName}
+                      text={msg.text}
+                      timestamp={new Date(msg.timestamp).toLocaleTimeString(
+                        [],
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}
+                      isOwn={msg.sender.userId === user.id}
+                    />
+                  </div>
                 );
               })}
+
               <div ref={bottomRef} />
             </Box>
 

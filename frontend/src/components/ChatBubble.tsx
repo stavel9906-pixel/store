@@ -14,6 +14,7 @@ export const ChatBubble = ({
   timestamp,
   isOwn,
 }: ChatBubbleProps) => {
+  console.log(avatarUrl)
   return (
     <Box
       sx={{

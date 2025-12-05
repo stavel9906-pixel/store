@@ -3,7 +3,7 @@ import { Home } from "../views/Home";
 import { Login } from "../views/Login/Login";
 import { History } from "../views/History";
 import { Profile } from "../views/Profile";
-import Chat from "../views/Chat";
+import { ChatPage } from "../views/Chat/Chat";
 
 export interface Page {
   path: string;
@@ -39,7 +39,7 @@ export const routes: Page[] = [
   },
   {
     path: "/chat",
-    element: <Chat />,
+    element: <ChatPage />,
     name: "chat",
   },
 ];

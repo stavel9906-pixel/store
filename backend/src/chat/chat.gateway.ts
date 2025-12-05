@@ -59,8 +59,9 @@ export class ChatGateway {
 
   @SubscribeMessage("getOpenChats")
   async getOpenChats(@ConnectedSocket() client: Socket) {
-    const chats = await this.chatService.getOpenChats();
-    client.emit("openChatsForAdmin", chats);
+    const chat = await this.chatService.getOpenChats();
+        console.log(chat)
+    client.emit("openChatsForAdmin", chat);
   }
 
   @SubscribeMessage("getOpenChatsForUser")

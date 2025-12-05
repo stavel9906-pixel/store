@@ -94,7 +94,7 @@ export interface Message {
   chat: Chat;
   sender: UserDTO;
   text: string;
-  timestamp: number;
+  timestamp: Date;
 }
 
 export interface Chat {
