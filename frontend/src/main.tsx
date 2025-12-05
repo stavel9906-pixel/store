@@ -1,17 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider } from "react-router-dom";
-import { router } from "./router";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { ProductsAmountCartProvider } from "./context/ProductsAmountCart";
+import { App } from "./views/App";
+import { OrderIdProvider } from "./context/OrderId";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <main className="text-center">
-        <RouterProvider router={router} />
-      </main>
-    </GoogleOAuthProvider>
+      <OrderIdProvider>
+        <ProductsAmountCartProvider>
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <App />
+          </GoogleOAuthProvider>
+        </ProductsAmountCartProvider>
+      </OrderIdProvider>
   </React.StrictMode>
 );

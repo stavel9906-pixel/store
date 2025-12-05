@@ -1,13 +1,21 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
   HttpException,
   HttpStatus,
+  NotFoundException,
+  Patch,
   Post,
+  Request,
+  UnauthorizedException,
+  UploadedFile,
+  UseInterceptors,
 } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
+import type { UpdateUserDTO } from "src/entities/DTO/updatedUserDTO";
 import { User } from "src/entities/user.entity";
+import { UsersRole } from "src/enums/userRole.enum";
 import { UnauthorizedError } from "src/errors/unauthorizedError";
 import { UsersService } from "src/services/users.service";
 
@@ -33,9 +41,9 @@ export class UsersController {
 
   @Post("signin")
   async googleSignIn(@Body() user: User) {
-    const { userName, email, password } = user;
+    const { userName, email, profile } = user;
     try {
-      return this.usersService.googleSignIn(userName, email);
+      return this.usersService.googleSignIn(userName, email, profile);
     } catch (err) {
       if (err instanceof UnauthorizedError) {
         throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
@@ -48,14 +56,11 @@ export class UsersController {
   }
 
   @Post("login")
-  async login(
-    @Body() user: User // password optional for Google login
-  ) {
+  async login(@Body() user: User) {
     try {
       const { email, password } = user;
 
-      const result = await this.usersService.login(email, password);
-      return result; // במקרה של הצלחה מחזיר את האובייקט עם פרטי המשתמש
+      return await this.usersService.login(email, password);
     } catch (err: any) {
       if (err instanceof UnauthorizedError) {
         throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
@@ -67,8 +72,34 @@ export class UsersController {
     }
   }
 
-  @Get()
-  findAll(): string {
-    return "This action returns all cats";
+  @Get("profile")
+  getProfile(@Request() req) {
+    return this.usersService.getUserFromToken(req.headers["authorization"]);
+  }
+
+  @Get("is-admin")
+  getIsAdmin(@Request() req) {
+    const user = this.usersService.getUserFromToken(req.headers["authorization"]);
+    return user.role === UsersRole.ADMIN;
+  }
+
+  @Patch()
+  // FormData.append("profile", file) לוקח את הקובץ הזה מהבקשה
+  @UseInterceptors(FileInterceptor("profile"))
+  async updateStatus(
+    @UploadedFile() file: Express.Multer.File | undefined,
+    @Body() user: UpdateUserDTO
+  ) {
+    try {
+      return await this.usersService.updateUser(user, file);
+    } catch (err: any) {
+      if (err instanceof UnauthorizedException) {
+        throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
+      }
+      throw new HttpException(
+        "Error while updating order password",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 }

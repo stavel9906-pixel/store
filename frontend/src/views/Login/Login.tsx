@@ -13,37 +13,46 @@ import {
   Snackbar,
   TextField,
 } from "@mui/material";
-import { Symbol } from "../../components/Symbol";
+import { Symbol } from "./Symbol";
 import MarkunreadIcon from "@mui/icons-material/Markunread";
 import LockIcon from "@mui/icons-material/Lock";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useGoogleLogin } from "@react-oauth/google";
 import usersApi from "../../api/usersApi";
 import { AuthResponse } from "../../utils/types";
 import { AxiosError, AxiosResponse } from "axios";
-import { getGoogleUser } from "./useGetGoogleSignin";
+import { getGoogleUser } from "./getGoogleSignin";
+import { useNavigate } from "react-router";
+import { authFormFields } from "./authFields";
+import { AuthField } from "../../utils/enums";
 
 export const Login = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(true);
-  const [nameValue, setName] = useState("");
-  const [nameError, setNameError] = useState(false);
-  const [passwordValue, setPasswordValue] = useState<string>("");
-  const [emailValue, setEmailValue] = useState<string>("");
-  const [emailError, setEmailError] = useState<boolean>(false);
-  const [passwordError, setPasswordError] = useState<boolean>(false);
-  const [confirmedPassword, setConfirmedPassword] = useState("");
-  const [unmatchPasswords, setUnMatchPasswords] = useState(false);
   const [errorAlert, setErrorAlert] = useState(false);
   const [errorDetails, setErrorDetails] = useState("");
   const toRemember = useRef<HTMLInputElement>(null);
+  const [formData, setFormData] = useState(authFormFields);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (localStorage.getItem("token") || sessionStorage.getItem("token")) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       const googleUser = await getGoogleUser(tokenResponse.access_token);
-      handleLoginRegister(googleUser.name, googleUser.email);
+      handleLoginRegister(
+        googleUser.name,
+        googleUser.email,
+        undefined,
+        googleUser.picture
+      );
     },
     onError: () => {
       setErrorAlert(true);
@@ -51,19 +60,25 @@ export const Login = () => {
     },
   });
 
+  const handleChange = (name: string, value: string) => {
+    setFormData((prev) =>
+      prev.map((field) => (field.name === name ? { ...field, value } : field))
+    );
+  };
+
   const handleLoginRegister = async (
     name: string | undefined,
     email: string,
-    password?: string
+    password?: string | undefined,
+    profile?: string
   ) => {
     let response: AxiosResponse<AuthResponse>;
+
     try {
       if (!password) {
-        response = await usersApi.users().signIn(email, name!);
+        response = await usersApi.users().signIn(email, name!, profile);
       } else if (!name) {
-        //login
         response = await usersApi.users().login(email, password);
-        console.log("login");
       } else {
         response = await usersApi.users().register(name, email, password);
       }
@@ -73,6 +88,8 @@ export const Login = () => {
       toRemember.current?.checked
         ? localStorage.setItem("token", token)
         : sessionStorage.setItem("token", token);
+
+      navigate("/dashboard");
     } catch (err: unknown) {
       const error = err as AxiosError<{ message: string }>;
       setErrorAlert(true);
@@ -85,29 +102,38 @@ export const Login = () => {
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const handleValidation = () => {
-    const isNameValid = /[A-Za-z]+/.test(nameValue) && !isLogin;
-    setNameError(!isNameValid);
-    const isPasswordValid =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])(.){8,}$/.test(
-        passwordValue
+    let allValid = true;
+
+    const newFormData = formData.map((field) => {
+      const valid =
+        field.name === "confirmedPassword"
+          ? field.validate(field.value, formData)
+          : field.validate(field.value);
+      if (!valid) allValid = false;
+
+      return {
+        ...field,
+        showError: !valid,
+      };
+    });
+    setFormData(newFormData);
+
+    if (allValid) {
+      handleLoginRegister(
+        newFormData[AuthField.USERNAME].value,
+        newFormData[AuthField.EMAIL].value,
+        newFormData[AuthField.PASSWORD].value
       );
-    setPasswordError(!isPasswordValid);
-    const isEmailValid =
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(emailValue);
-    setEmailError(!isEmailValid);
-    const passwordsMatching = !isLogin && passwordValue === confirmedPassword;
-    console.log(passwordsMatching);
-    setUnMatchPasswords(!passwordsMatching);
-    if (
-      !isLogin &&
-      isNameValid &&
-      isPasswordValid &&
-      isEmailValid &&
-      passwordsMatching
+    } else if (
+      isLogin &&
+      !newFormData[AuthField.EMAIL].showError &&
+      !newFormData[AuthField.PASSWORD].showError
     ) {
-      handleLoginRegister(nameValue, emailValue, passwordValue);
-    } else if (isLogin && isEmailValid && isPasswordValid) {
-      handleLoginRegister(undefined, emailValue, passwordValue);
+      handleLoginRegister(
+        undefined,
+        newFormData[AuthField.EMAIL].value,
+        newFormData[AuthField.PASSWORD].value
+      );
     }
   };
 
@@ -130,12 +156,21 @@ export const Login = () => {
                 label="Name"
                 variant="outlined"
                 className="col-md-6"
-                value={nameValue}
-                onChange={(event) => setName(event.target.value)}
-                error={nameError}
-                helperText={nameError ? "Name must have letters" : ""}
+                value={formData[AuthField.USERNAME].value}
+                onChange={(e) =>
+                  handleChange(
+                    formData[AuthField.USERNAME].name,
+                    e.target.value
+                  )
+                }
+                error={formData[AuthField.USERNAME].showError}
+                helperText={
+                  formData[AuthField.USERNAME].showError
+                    ? formData[AuthField.USERNAME].errorMessage
+                    : ""
+                }
               />
-            </div>{" "}
+            </div>
           </div>
         )}
         <div className="row justify-content-md-center">
@@ -146,10 +181,16 @@ export const Login = () => {
               color="primary"
             />
             <TextField
-              value={emailValue}
-              onChange={(event) => setEmailValue(event.target.value)}
-              error={emailError}
-              helperText={emailError ? "Email is invalid" : ""}
+              value={formData[AuthField.EMAIL].value}
+              onChange={(e) =>
+                handleChange(formData[AuthField.EMAIL].name, e.target.value)
+              }
+              error={formData[AuthField.EMAIL].showError}
+              helperText={
+                formData[AuthField.EMAIL].showError
+                  ? formData[AuthField.EMAIL].errorMessage
+                  : ""
+              }
               id="outlined-basic"
               label="Email"
               variant="outlined"
@@ -169,10 +210,19 @@ export const Login = () => {
               className="col-md-6"
             >
               <TextField
-                value={passwordValue}
-                onChange={(event) => setPasswordValue(event.target.value)}
-                error={passwordError}
-                helperText={passwordError ? "Enter stronger password" : ""}
+                value={formData[AuthField.PASSWORD].value}
+                onChange={(e) =>
+                  handleChange(
+                    formData[AuthField.PASSWORD].name,
+                    e.target.value
+                  )
+                }
+                error={formData[AuthField.PASSWORD].showError}
+                helperText={
+                  formData[AuthField.PASSWORD].showError
+                    ? formData[AuthField.PASSWORD].errorMessage
+                    : ""
+                }
                 id="password"
                 type={showPassword ? "text" : "password"}
                 label="Password"
@@ -210,11 +260,18 @@ export const Login = () => {
                 className="col-md-6"
               >
                 <TextField
-                  value={confirmedPassword}
-                  onChange={(event) => setConfirmedPassword(event.target.value)}
-                  error={unmatchPasswords}
+                  value={formData[AuthField.CONFIRMED_PASSWORD].value}
+                  onChange={(e) =>
+                    handleChange(
+                      formData[AuthField.CONFIRMED_PASSWORD].name,
+                      e.target.value
+                    )
+                  }
+                  error={formData[AuthField.CONFIRMED_PASSWORD].showError}
                   helperText={
-                    unmatchPasswords ? "The passwords are not identical" : ""
+                    formData[AuthField.CONFIRMED_PASSWORD].showError
+                      ? formData[AuthField.CONFIRMED_PASSWORD].errorMessage
+                      : ""
                   }
                   id="password"
                   type={showPassword ? "text" : "password"}

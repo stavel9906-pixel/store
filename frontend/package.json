@@ -1,5 +1,5 @@
 {
-  "name": "sheleg",
+  "name": "store",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,7 +13,10 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.5",
+    "@mui/joy": "^5.0.0-beta.52",
     "@mui/material": "^7.3.5",
+    "@mui/system": "^7.3.5",
+    "@mui/x-data-grid-generator": "^8.20.0",
     "@react-oauth/google": "^0.12.2",
     "@toolpad/core": "^0.16.0",
     "axios": "^1.6.8",
@@ -23,7 +26,9 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "framer-motion": "^12.23.25",
     "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
     "mui": "^0.0.1",
     "multer": "^2.0.2",
     "pg": "^8.16.3",
@@ -31,6 +36,7 @@
     "react-dom": "^18.2.0",
     "react-router": "^7.9.6",
     "react-router-dom": "^7.9.6",
+    "socket.io-client": "^4.8.1",
     "sweetalert2": "^11.10.7"
   },
   "devDependencies": {
