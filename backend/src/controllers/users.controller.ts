@@ -4,6 +4,8 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
+  Logger,
   NotFoundException,
   Patch,
   Post,
@@ -61,7 +63,7 @@ export class UsersController {
       const { email, password } = user;
 
       return await this.usersService.login(email, password);
-    } catch (err: any) {
+    } catch (err) {
       if (err instanceof UnauthorizedError) {
         throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
       }
@@ -74,13 +76,27 @@ export class UsersController {
 
   @Get("profile")
   getProfile(@Request() req) {
-    return this.usersService.getUserFromToken(req.headers["authorization"]);
+    try {
+      return this.usersService.getUserFromToken(req.headers["authorization"]);
+    } catch (error) {
+      Logger.error(error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException("Failed to fetch profile");
+    }
   }
 
   @Get("is-admin")
   getIsAdmin(@Request() req) {
-    const user = this.usersService.getUserFromToken(req.headers["authorization"]);
-    return user.role === UsersRole.ADMIN;
+    try {
+      const user = this.usersService.getUserFromToken(
+        req.headers["authorization"]
+      );
+      return user.role === UsersRole.ADMIN;
+    } catch (error) {
+      throw new InternalServerErrorException("Failed to get if admin");
+    }
   }
 
   @Patch()
@@ -92,7 +108,7 @@ export class UsersController {
   ) {
     try {
       return await this.usersService.updateUser(user, file);
-    } catch (err: any) {
+    } catch (err) {
       if (err instanceof UnauthorizedException) {
         throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
       }

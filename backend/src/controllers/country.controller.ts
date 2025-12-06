@@ -1,12 +1,18 @@
-import { Controller, Get } from '@nestjs/common';
-import { CountriesService } from 'src/services/country.service';
+import { Controller, Get, InternalServerErrorException } from "@nestjs/common";
+import { CountriesService } from "src/services/country.service";
 
-@Controller('countries')
+@Controller("countries")
 export class CountriesController {
   constructor(private readonly countriesService: CountriesService) {}
 
   @Get()
   async getAll() {
-    return this.countriesService.getAllCountries();
+    try {
+      return this.countriesService.getAllCountries();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        "Failed to fetch countries"
+      );
+    }
   }
 }

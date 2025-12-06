@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { Product } from "src/entities/product.entity";
 import { CloudinaryService } from "./cloudinary.service";
 import { ProductsTypeService } from "./productsType.service";
+import { ShippingService } from "./shipping.service";
 
 @Injectable()
 export class AdminService {
@@ -12,6 +13,7 @@ export class AdminService {
     private productRepo: Repository<Product>,
     private cloudinaryService: CloudinaryService,
     private productTypeService: ProductsTypeService,
+    private shippingService: ShippingService,
   ) {}
 
   async deleteProduct(productId: number) {
@@ -40,7 +42,7 @@ export class AdminService {
         const result = await this.cloudinaryService.uploadFileImage(file);
         currentProduct.imageUrl = result.secure_url;
       } catch (error) {
-        Logger.error("Cloudinary upload failed:", error);
+        Logger.error("Cloudinary upload failed: ", error);
       }
     }
 
@@ -85,7 +87,21 @@ export class AdminService {
     return savedProduct;
   }
 
-  async insertNewProductType (name: string) {
+  async insertNewProductType(name: string) {
     return await this.productTypeService.addProductType(name);
+  }
+
+  async deleteProductType(id: number) {
+    const result = await this.productTypeService.deleteProductType(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`Product Type with ID ${id} not found`);
+    }
+
+    return { message: "Product Type successfully deleted" };
+  }
+
+  async updateShippingFee(fee: number) {
+    return this.shippingService.setShippingFee(fee);
   }
 }

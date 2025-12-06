@@ -109,11 +109,10 @@ export const ProductForm = ({
 
     if (allValid) {
       const formData = new FormData();
-      if (fileInputRef.current?.files && fileInputRef.current.files[0]) {
+      if (fileInputRef.current?.files?.[0]) {
         formData.append("image", fileInputRef.current.files[0]);
       }
 
-      // שדות אחרים
       formData.append("productName", form[ProductField.PRODUCT_NAME].value);
       formData.append("productType", form[ProductField.PRODUCT_TYPE].value);
       formData.append("price", form[ProductField.PRICE].value);
@@ -188,7 +187,7 @@ export const ProductForm = ({
               alignItems: "center",
               justifyContent: "center",
               mt: "3rem",
-              flexDirection: "column"
+              flexDirection: "column",
             }}
             className="col-md-5"
           >

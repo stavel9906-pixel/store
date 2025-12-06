@@ -40,7 +40,7 @@ export const Login = () => {
 
   useEffect(() => {
     if (localStorage.getItem("token") || sessionStorage.getItem("token")) {
-      navigate("/dashboard");
+      navigate("/home");
     }
   }, [navigate]);
 
@@ -89,7 +89,7 @@ export const Login = () => {
         ? localStorage.setItem("token", token)
         : sessionStorage.setItem("token", token);
 
-      navigate("/dashboard");
+      navigate("/home");
     } catch (err: unknown) {
       const error = err as AxiosError<{ message: string }>;
       setErrorAlert(true);

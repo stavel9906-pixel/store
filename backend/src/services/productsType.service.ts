@@ -23,9 +23,15 @@ export class ProductsTypeService {
 
   async addProductType(name: string) {
     const type = this.productTypeRepo.create({
-      name: name
+      name: name,
     });
 
     return await this.productTypeRepo.save(type);
+  }
+
+  async deleteProductType(id: number) {
+    return await this.productTypeRepo.delete({
+      id,
+    });
   }
 }

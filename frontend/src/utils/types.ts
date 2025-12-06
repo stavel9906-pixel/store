@@ -23,6 +23,7 @@ export type Product = {
   description: string;
   productType: ProductType;
   imageUrl: string; // URL של התמונה ב-Cloudinary
+  forSale: boolean;
 };
 
 export type ProductType = {
@@ -45,6 +46,7 @@ export interface Purchase {
   createdAt: string;
   deliverTime?: string;
   purchaseProducts: PurchaseProduct[];
+  shippingFee: number;
 }
 
 export interface City {
@@ -102,6 +104,12 @@ export interface Chat {
   user: UserDTO;
   isOpen: boolean;
   messages?: Message[];
+}
+
+export interface ShippingConfig {
+  id: number;
+  price: number;
+  active: boolean;
 }
 
 export interface UserDTO {

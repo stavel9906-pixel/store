@@ -49,6 +49,7 @@ export const ProductCard: FC<ProductCardProps> = ({
         borderRadius: 10,
       }}
     >
+
       <Tooltip title="add to cart">
         <IconButton
           aria-label="addCart"
@@ -67,7 +68,6 @@ export const ProductCard: FC<ProductCardProps> = ({
       </Tooltip>
       {isAdmin && (
         <>
-          {" "}
           <Tooltip title="delete product">
             <IconButton
               sx={{

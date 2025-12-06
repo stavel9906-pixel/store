@@ -1,9 +1,10 @@
-import HorizontalLinearStepper from "../views/Stepper";
-import { Home } from "../views/Home";
+import { Products } from "../views/Products";
 import { Login } from "../views/Login/Login";
 import { History } from "../views/History";
 import { Profile } from "../views/Profile";
 import { ChatPage } from "../views/Chat/Chat";
+import { HorizontalLinerStepper } from "../views/Stepper";
+import { Home } from "../views/Home";
 
 export interface Page {
   path: string;
@@ -18,14 +19,14 @@ export const routes: Page[] = [
     name: "התחברות",
   },
   {
-    path: "/dashboard",
-    element: <Home />,
-    name: "dashboard",
+    path: "/products",
+    element: <Products />,
+    name: "products",
   },
   {
-    path: "/orders",
-    element: <HorizontalLinearStepper />,
-    name: "orders",
+    path: "/order",
+    element: <HorizontalLinerStepper />,
+    name: "order",
   },
   {
     path: "/history",
@@ -42,4 +43,9 @@ export const routes: Page[] = [
     element: <ChatPage />,
     name: "chat",
   },
+  {
+    path: "/home",
+    element: <Home />,
+    name: "home",
+  }
 ];

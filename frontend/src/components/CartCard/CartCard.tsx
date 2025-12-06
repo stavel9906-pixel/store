@@ -50,18 +50,42 @@ export const CartCard: FC<CartCardProps> = ({
             orientation="horizontal"
             sx={{
               width: "38vw",
-              height: 200,
+              height: "12.5rem",
               position: "relative",
               "&:hover": {
                 boxShadow: "md",
                 borderColor: "neutral.outlinedHoverBorder",
               },
               pointerEvents: "auto",
+              overflow: "hidden",
             }}
           >
+            {!product.product.forSale && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "1.25rem",
+                  left: "-5rem",
+                  width: "14rem",
+                  bgcolor: "danger.solidBg",
+                  color: "danger.solidColor",
+                  transform: "rotate(-45deg)",
+                  textAlign: "center",
+                  fontSize: "0.85rem",
+                  fontWeight: "lg",
+                  py: "0.3rem",
+                  boxShadow: "md",
+                  zIndex: 20,
+                  pointerEvents: "none",
+                }}
+              >
+                OUT SALE
+              </Box>
+            )}
+
             <AspectRatio
               ratio={1}
-              sx={{ width: 160 }}
+              sx={{ width: "10rem" }}
             >
               <img
                 src={product.product.imageUrl}
@@ -79,7 +103,7 @@ export const CartCard: FC<CartCardProps> = ({
             >
               <Typography
                 level="title-lg"
-                sx={{ fontSize: 30, fontWeight: "bold" }}
+                sx={{ fontSize: "2rem", fontWeight: "bold" }}
               >
                 {product.product.productName}
               </Typography>
@@ -94,7 +118,7 @@ export const CartCard: FC<CartCardProps> = ({
                   sx={{
                     color: "text.tertiary",
                     display: "-webkit-box",
-                    WebkitLineClamp: 2, 
+                    WebkitLineClamp: 2,
                     WebkitBoxOrient: "vertical",
                     overflow: "hidden",
                   }}
@@ -113,7 +137,7 @@ export const CartCard: FC<CartCardProps> = ({
               </Chip>
               <Typography
                 level="title-lg"
-                sx={{ fontSize: 20, ml: 1, mt: 1 }}
+                sx={{ fontSize: "1.25rem", ml: 1, mt: 1 }}
               >
                 ${product.currentPrice}
               </Typography>
@@ -177,7 +201,7 @@ export const CartCard: FC<CartCardProps> = ({
                   type="number"
                   value={currentAmount}
                   disabled={!onRemove}
-                  sx={{ width: 60, mx: 1, textAlign: "center" }}
+                  sx={{ width: "3.75rem", mx: 1, textAlign: "center" }}
                   onChange={(event) => {
                     const newAmount = Math.max(
                       Number(event.currentTarget.value),

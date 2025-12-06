@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query } from "@nestjs/common";
+import { Controller, Get, InternalServerErrorException, Post, Query } from "@nestjs/common";
 import { ProductsTypeService } from "src/services/productsType.service";
 
 @Controller("products-type")
@@ -7,6 +7,10 @@ export class ProductsTypeController {
 
   @Get()
   async getAll() {
-    return this.productsTypeService.getAllProductsType();
+    try {
+      return this.productsTypeService.getAllProductsType();
+    } catch (error) {
+      throw new InternalServerErrorException("Failed to get products types");
+    }
   }
 }

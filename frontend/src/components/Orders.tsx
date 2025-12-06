@@ -1,22 +1,46 @@
 import { Box } from "@mui/system";
 import { useGetOrderById } from "../api/hooks/useGetOrderById";
 import { CartCard } from "./CartCard/CartCard";
-import { Button, Card, CardContent, Typography } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Fab,
+  FormHelperText,
+  Snackbar,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useProductsAmountCart } from "../context/ProductsAmountCart";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import { FC, useEffect, useState } from "react";
 import purchasesApi from "../api/purchasesApi";
 import { useGetShippingFee } from "../api/hooks/useGetShippingFee";
 import Swal from "sweetalert2";
+import { useGetIsAdmin } from "../api/hooks/useGetIsAdmin";
+import EditIcon from "@mui/icons-material/Edit";
+import adminApi from "../api/adminApi";
+import { useOrderId } from "../context/OrderId";
 
 interface OrdersProps {
   handleNext: () => void;
 }
 export const Orders: FC<OrdersProps> = ({ handleNext }) => {
   const { order, setOrder } = useGetOrderById();
+  const { orderId } = useOrderId();
   const { productsAmountCart } = useProductsAmountCart();
-  const {shippingFee} = useGetShippingFee();
+  const { shippingFee, setShippingFee } = useGetShippingFee();
   const [sumPrice, setSumPrice] = useState<number>(0);
+  const { isAdmin } = useGetIsAdmin();
+  const [openShippingModal, setOpenShippingModal] = useState(false);
+  const [newShippingPrice, setNewShippingPrice] = useState<number>(0);
+  const [shippingFeeError, setShippingFeeError] = useState("");
+  const [errorAlert, setErrorAlert] = useState(false);
 
   const handleRemoveProduct = async (id: number) => {
     if (order) {
@@ -32,7 +56,26 @@ export const Orders: FC<OrdersProps> = ({ handleNext }) => {
       };
     });
   };
-  console.log(order)
+
+  const handleShippingFeeUpdate = async (newPrice: number) => {
+    if (newShippingPrice < 0) {
+      setShippingFeeError("Shipping fee needs to be a positive number");
+      return;
+    }
+
+    setShippingFeeError("");
+
+    try {
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
+      console.log(token)
+      await adminApi.admin().updateShippingFee(token, newPrice);
+      setShippingFee(newPrice);
+      setOpenShippingModal(false);
+    } catch (err) {
+      setErrorAlert(true);
+    }
+  };
 
   useEffect(() => {
     if (!order || !shippingFee) return;
@@ -69,14 +112,15 @@ export const Orders: FC<OrdersProps> = ({ handleNext }) => {
           </Card>
 
           <Box mb={5}>
-            {order && order.purchaseProducts.map((productPur) => (
-              <CartCard
-                key={productPur.id}
-                product={productPur}
-                setSumPrice={setSumPrice}
-                onRemove={handleRemoveProduct}
-              />
-            ))}
+            {order &&
+              order.purchaseProducts.map((productPur) => (
+                <CartCard
+                  key={productPur.id}
+                  product={productPur}
+                  setSumPrice={setSumPrice}
+                  onRemove={handleRemoveProduct}
+                />
+              ))}
           </Box>
         </Box>
         <Box width={"100%"}>
@@ -109,7 +153,73 @@ export const Orders: FC<OrdersProps> = ({ handleNext }) => {
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <Typography variant="h6">
-                  Shipping Fee: <strong>${shippingFee}</strong>
+                  Shipping Fee: <strong>${(isAdmin || !orderId) ? shippingFee : order?.shippingFee}</strong>
+                  {isAdmin && shippingFee && (
+                    <>
+                      <Fab
+                        color="success"
+                        aria-label="edit"
+                        sx={{ width: "2.2rem", ml: 2, height: "1.5rem" }}
+                        onClick={() => {
+                          setNewShippingPrice(shippingFee);
+                          setOpenShippingModal(true);
+                        }}
+                      >
+                        <EditIcon />
+                      </Fab>
+                      <Dialog
+                        open={openShippingModal}
+                        onClose={() => setOpenShippingModal(false)}
+                      >
+                        <DialogTitle>Update Shipping Fee</DialogTitle>
+                        <DialogContent>
+                          <TextField
+                            label="Shipping Price"
+                            type="number"
+                            fullWidth
+                            value={newShippingPrice}
+                            onChange={(e) =>
+                              setNewShippingPrice(Number(e.target.value))
+                            }
+                            sx={{ mt: 2 }}
+                            error={!!shippingFeeError}
+                          />
+                          {shippingFeeError && (
+                            <FormHelperText sx={{ color: "red" }}>
+                              {shippingFeeError}
+                            </FormHelperText>
+                          )}
+                        </DialogContent>
+                        <DialogActions>
+                          <Button
+                            onClick={() => setOpenShippingModal(false)}
+                            color="inherit"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={async () => {
+                              await handleShippingFeeUpdate(newShippingPrice);
+                            }}
+                            color="success"
+                            variant="contained"
+                          >
+                            Save
+                          </Button>
+                        </DialogActions>
+                      </Dialog>
+                      <Snackbar
+                        open={errorAlert}
+                        onClose={() => setErrorAlert(false)}
+                        autoHideDuration={3000}
+                        anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+                        <Alert severity="error">
+                          Error Accured While Saving New Shipping Fee. Update
+                          Failed!
+                        </Alert>
+                      </Snackbar>
+                    </>
+                  )}
                 </Typography>
 
                 <Typography variant="h6">Total Price:</Typography>
@@ -134,13 +244,16 @@ export const Orders: FC<OrdersProps> = ({ handleNext }) => {
                   borderRadius: 20,
                 }}
                 onClick={() => {
-                  if(order){
+                  if (order) {
                     handleNext();
                   } else {
-                    Swal.fire("Oops!", "There are no products for checkout. Please try again.", "error")
+                    Swal.fire(
+                      "Oops!",
+                      "There are no products for checkout. Please try again.",
+                      "error"
+                    );
                   }
-                }
-                }
+                }}
               >
                 Checkout Now
               </Button>

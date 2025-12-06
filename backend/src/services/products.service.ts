@@ -12,24 +12,24 @@ export class ProductsService {
     private cloudinaryService: CloudinaryService
   ) {}
 
-  async attachImageToProduct(id: number, fileUrl: string) {
-    const uploadResult = await this.cloudinaryService.uploadImage(
-      fileUrl,
-      `product_${id}`
-    );
+  // async attachImageToProduct(id: number, fileUrl: string) {
+  //   const uploadResult = await this.cloudinaryService.uploadImage(
+  //     fileUrl,
+  //     `product_${id}`
+  //   );
 
-    const result = await this.productRepo.update(id, {
-      imageUrl: uploadResult.secure_url,
-    });
+  //   const result = await this.productRepo.update(id, {
+  //     imageUrl: uploadResult.secure_url,
+  //   });
 
-    if (result.affected === 0)
-      throw new NotFoundException("Product not found");
+  //   if (result.affected === 0)
+  //     throw new NotFoundException("Product not found");
 
-    return {
-      message: "Image uploaded and URL saved",
-      imageUrl: uploadResult.secure_url,
-    };
-  }
+  //   return {
+  //     message: "Image uploaded and URL saved",
+  //     imageUrl: uploadResult.secure_url,
+  //   };
+  // }
 
   async getAllProducts() {
     return this.productRepo.find({ 

@@ -45,6 +45,23 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         }),
+      updateShippingFee: (
+        token: string | null,
+        price: number
+      ): Promise<AxiosResponse<ProductType>> => {
+        return axiosInstance.patch(
+          `/shipping/fee`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: {
+              price,
+            },
+          }
+        );
+      },
       addNewProductType: (
         token: string | null,
         name: string
@@ -57,10 +74,23 @@ export default {
               Authorization: `Bearer ${token}`,
             },
             params: {
-              name: name,
+              name,
             },
           }
         );
+      },
+      deleteProductType: (
+        token: string | null,
+        id: number
+      ): Promise<AxiosResponse<ProductType>> => {
+        return axiosInstance.delete(`/product-type`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: {
+            id,
+          },
+        });
       },
     };
   },

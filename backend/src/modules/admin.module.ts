@@ -8,10 +8,12 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Product } from "src/entities/product.entity";
 import { ProductType } from "src/entities/productType.entity";
 import { ProductsTypeService } from "src/services/productsType.service";
+import { ShippingConfig } from "src/entities/shipping-config.entity";
+import { ShippingService } from "src/services/shipping.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, ProductType]), CloudinaryModule],
+  imports: [TypeOrmModule.forFeature([Product, ProductType, ShippingConfig]), CloudinaryModule],
   controllers: [AdminController],
-  providers: [AdminService, ProductsService, ProductsTypeService],
+  providers: [AdminService, ProductsService, ProductsTypeService, ShippingService],
 })
 export class AdminModule {}

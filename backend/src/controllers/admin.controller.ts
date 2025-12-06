@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -87,6 +88,24 @@ export class AdminController {
         "Error while adding product type",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
+    }
+  }
+
+  @Delete("product-type")
+  async deleteProductType(@Query("id") id: number) {
+    try {
+      return this.adminService.deleteProductType(+id);
+    } catch (error) {
+      throw new InternalServerErrorException("Failed to remove product type");
+    }
+  }
+
+  @Patch('shipping/fee')
+  async updateFee(@Query('price') price: number) {
+    try {
+      return this.adminService.updateShippingFee(price);
+    } catch (error) {
+      throw new InternalServerErrorException("Failed to update shipping fee");
     }
   }
 }

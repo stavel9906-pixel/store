@@ -16,6 +16,7 @@ import { UsersRole } from "../../utils/enums";
 import AddCommentOutlinedIcon from "@mui/icons-material/AddCommentOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import { getDateLabel } from "./getDateLabel";
+import SendIcon from "@mui/icons-material/Send";
 
 const socket: Socket = io("http://localhost:3000", {
   transports: ["websocket"],
@@ -93,7 +94,7 @@ export const ChatPage = () => {
       socket.off("chatClosed");
       socket.off("chatClosedForAdmin");
     };
-  }, []); // רק פעם אחת!
+  }, []);
 
   // AUTO SCROLL
   useEffect(() => {
@@ -140,6 +141,7 @@ export const ChatPage = () => {
       <Typography
         variant="h4"
         gutterBottom
+        mb={2}
       >
         Chat Support
       </Typography>
@@ -201,17 +203,16 @@ export const ChatPage = () => {
                 </Button>
               </>
             )}
-            {user.role === UsersRole.ADMIN && (
-              <Typography
-                variant="h6"
-                sx={{ mb: 1 }}
-              >
-                Open Chats
-              </Typography>
-            )}
-            {user?.role === UsersRole.ADMIN &&
-              openChats.map((chat) => (
-                <>
+            {user?.role === UsersRole.ADMIN && (
+              <>
+                <Typography
+                  variant="h6"
+                  sx={{ mb: 1 }}
+                >
+                  Open Chats
+                </Typography>
+
+                {openChats.map((chat) => (
                   <Box
                     key={chat.id}
                     sx={{
@@ -230,96 +231,108 @@ export const ChatPage = () => {
                     onClick={() => joinChat(chat)}
                   >
                     <Typography>{chat.user.userName}</Typography>
+
                     <IconButton
                       color="error"
                       onClick={(e) => {
-                        e.stopPropagation(); // עוצר את ההפצה ל-Box
+                        e.stopPropagation();
                         socket.emit("closeChat", chat.id);
                       }}
                     >
                       <CancelOutlinedIcon />
                     </IconButton>
                   </Box>
-                </>
-              ))}
+                ))}
+              </>
+            )}
           </Paper>
 
           {/* MAIN CHAT */}
-          <Paper
-            sx={{
-              flex: 1,
-              p: 2,
-              height: "70vh",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Box sx={{ flex: 1, overflowY: "auto", mb: 2 }}>
-              {messages.map((msg, index) => {
-                const prevMsg = messages[index - 1];
-                const currentLabel = getDateLabel(msg.timestamp);
-                const prevLabel = prevMsg
-                  ? getDateLabel(prevMsg.timestamp)
-                  : null;
-
-                const showDateLabel = currentLabel !== prevLabel;
-
-                return (
-                  <div key={msg.id}>
-                    {showDateLabel && (
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          color: "gray",
-                          fontSize: "0.9rem",
-                          my: 1,
-                        }}
-                      >
-                        {currentLabel}
-                      </Typography>
-                    )}
-
-                    <ChatBubble
-                      avatarUrl={msg.sender.profile || ""}
-                      name={msg.sender.userName}
-                      text={msg.text}
-                      timestamp={new Date(msg.timestamp).toLocaleTimeString(
-                        [],
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )}
-                      isOwn={msg.sender.userId === user.id}
-                    />
-                  </div>
-                );
-              })}
-
-              <div ref={bottomRef} />
-            </Box>
-
-            <Box
-              display="flex"
-              gap={1}
+          {currentChat && (
+            <Paper
+              sx={{
+                flex: 1,
+                p: 2,
+                height: "70vh",
+                display: "flex",
+                flexDirection: "column",
+                bgcolor: "#f6f6f6ff",
+                borderRadius: "40px",
+              }}
             >
-              <TextField
-                fullWidth
-                label="Message"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              />
-              <Button
-                variant="contained"
-                onClick={sendMessage}
+              <Box sx={{ flex: 1, overflowY: "auto", mb: 2 }}>
+                {messages.map((msg, index) => {
+                  const prevMsg = messages[index - 1];
+                  const currentLabel = getDateLabel(msg.timestamp);
+                  const prevLabel = prevMsg
+                    ? getDateLabel(prevMsg.timestamp)
+                    : null;
+
+                  const showDateLabel = currentLabel !== prevLabel;
+
+                  return (
+                    <div key={msg.id}>
+                      {showDateLabel && (
+                        <Typography
+                          sx={{
+                            textAlign: "center",
+                            color: "gray",
+                            fontSize: "0.9rem",
+                            my: 1,
+                          }}
+                        >
+                          {currentLabel}
+                        </Typography>
+                      )}
+
+                      <ChatBubble
+                        avatarUrl={msg.sender.profile || ""}
+                        name={msg.sender.userName}
+                        text={msg.text}
+                        timestamp={new Date(msg.timestamp).toLocaleTimeString(
+                          [],
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
+                        isOwn={msg.sender.userId === user.id}
+                      />
+                    </div>
+                  );
+                })}
+
+                <div ref={bottomRef} />
+              </Box>
+
+              <Box
+                display="flex"
+                gap={1}
               >
-                Send
-              </Button>
-            </Box>
-          </Paper>
+                <TextField
+                  fullWidth
+                  placeholder="Enter your message"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "50px",
+                      borderColor: "black",
+                    },
+                  }}
+                />
+                <IconButton onClick={sendMessage}>
+                  <SendIcon
+                    onClick={sendMessage}
+                    sx={{ fontSize: "2rem", color: "black" }}
+                  />
+                </IconButton>
+              </Box>
+            </Paper>
+          )}
         </Box>
       )}
     </Container>
   );
-}
+};

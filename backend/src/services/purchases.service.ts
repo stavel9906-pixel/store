@@ -1,6 +1,7 @@
 import {
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -14,6 +15,7 @@ import { ShippingService } from "./shipping.service";
 import { User } from "src/entities/user.entity";
 import { UserTokenDTO } from "src/entities/DTO/UserTokenDTO";
 import { UsersRole } from "src/enums/userRole.enum";
+import { Product } from "src/entities/product.entity";
 
 @Injectable()
 export class PurchasesService {
@@ -49,6 +51,10 @@ export class PurchasesService {
         ],
       });
 
+      if (!purchase) {
+        throw new NotFoundException(`Order with ID ${id} not found`);
+      }
+
       return purchase;
     }
 
@@ -56,22 +62,18 @@ export class PurchasesService {
   }
 
   async deleteProductFromOrder(purchaseId: number, productId: number) {
-    try {
-      const result = await this.purchaseProductRepo.delete({
-        purchase: { id: purchaseId },
-        product: { productId: productId },
-      });
+    const result = await this.purchaseProductRepo.delete({
+      purchase: { id: purchaseId },
+      product: { productId: productId },
+    });
 
-      if (result.affected === 0) {
-        throw new NotFoundException(
-          `Product with ID ${productId} not found in purchase ${purchaseId}`
-        );
-      }
-
-      return { message: "Product removed successfully" };
-    } catch (error) {
-      throw new InternalServerErrorException("Failed to remove product");
+    if (result.affected === 0) {
+      throw new NotFoundException(
+        `Product with ID ${productId} not found in purchase ${purchaseId}`
+      );
     }
+
+    return { message: "Product removed successfully" };
   }
 
   async getTotalAmountPurchase(id: number): Promise<number> {
@@ -81,7 +83,7 @@ export class PurchasesService {
       .where("purchaseProducts.purchase_id = :purchaseId", { purchaseId: id })
       .getRawOne();
 
-    return totalAmount.total ?? 0;
+    return totalAmount?.total ?? 0;
   }
 
   async updateStatus(id: number, status: PurchaseStatus): Promise<void> {
@@ -89,7 +91,7 @@ export class PurchasesService {
       .createQueryBuilder("order")
       .update(Purchase)
       .set({
-        status: status,
+        status,
       })
       .where("id = :orderId", { orderId: id })
       .execute();
@@ -134,6 +136,9 @@ export class PurchasesService {
     if (purchaseProduct) {
       const newAmount = purchaseProduct.amount + amount;
       purchaseProduct.amount = newAmount < 0 ? 0 : newAmount;
+      Logger.log(
+        `updated product ${productId} amount in the order to ${purchaseProduct.amount}`
+      );
 
       return this.purchaseProductRepo.save(purchaseProduct);
     }
@@ -158,11 +163,42 @@ export class PurchasesService {
       currentPrice: product.price,
     });
 
-    return this.purchaseProductRepo.save(purchaseProduct);
+    Logger.log(`succesfuly added product to order`);
+
+    return await this.purchaseProductRepo.save(purchaseProduct);
+  }
+
+  async findBestSellerProducts(amountOfBestSellers: number) {
+    const rows = await this.purchaseProductRepo
+      .createQueryBuilder("pp")
+      .innerJoin("pp.product", "pro")
+      .innerJoin("pp.purchase", "p")
+      .select([
+        "pro.product_id AS product_id",
+        "pro.product_name AS product_name",
+        "pro.price AS price",
+        "pro.image_url AS image_url",
+        "SUM(pp.current_price * pp.amount) AS totalRevenue",
+      ])
+      .where("pro.for_sale = :forSale", { forSale: true })
+      .andWhere("p.status NOT IN (:...excludedStatuses)", {
+        excludedStatuses: [PurchaseStatus.PENDING, PurchaseStatus.CANCELLED],
+      })
+      .groupBy("pro.product_id")
+      .orderBy("totalRevenue", "DESC")
+      .limit(amountOfBestSellers)
+      .getRawMany();
+
+    return rows.map(({ totalRevenue, ...productFields }) => ({
+      productId: productFields.product_id,
+      productName: productFields.product_name,
+      price: Number(productFields.price),
+      imageUrl: productFields.image_url,
+    }));
   }
 
   async getUserOrdersDetails(user: UserTokenDTO): Promise<HistoryDetailsDTO[]> {
-    const userId = user.role === UsersRole.ADMIN ? undefined : user.id;
+    const userId = user.role === UsersRole.ADMIN ? undefined : user.id; // in order to get all orders if admin
     const purchasesDetail = await this.purchaseRepo.find({
       where: { user: { userId: userId } },
       relations: [
@@ -173,6 +209,9 @@ export class PurchasesService {
         "user",
       ],
     });
+    Logger.log(
+      `There are ${purchasesDetail.length} orders for ${userId ? "user" : "admin"}`
+    );
 
     return purchasesDetail.map((order) => {
       const { requestedDate, requestedTimeFrom, requestedTimeTo } =
@@ -198,23 +237,23 @@ export class PurchasesService {
         } else if (dateStr) {
           deliverTime = dateStr;
         } else {
-          // אין תאריך, רק שעה או חלקי
           deliverTime = `${timeFromStr}-${timeToStr}`;
         }
       }
-
-      console.log(deliverTime);
 
       return {
         orderId: order.id,
         status: order.status,
         createdAt: order.createdAt,
         deliverTime,
-        totalPrice:
-          Number((order.purchaseProducts.reduce(
-            (sum, pp) => sum + pp.amount * pp.currentPrice,
-            0
-          ) + Number(order.shippingFee ?? 0)).toFixed(2)),
+        totalPrice: Number(
+          (
+            order.purchaseProducts.reduce(
+              (sum, pp) => sum + pp.amount * pp.currentPrice,
+              0
+            ) + Number(order.shippingFee ?? 0)
+          ).toFixed(2)
+        ),
         quantity: order.purchaseProducts.reduce(
           (sum, pp) => sum + pp.amount,
           0

@@ -20,7 +20,7 @@ const style = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   height: "80%",
-  overflowY: "scroll",
+  overflowY: "auto",
   bgcolor: "#ce9cd4ff",
   borderRadius: 10,
   border: "2px solid #000",
@@ -98,6 +98,7 @@ export const History = () => {
         columns={columns}
         pagination
         pageSizeOptions={[5, 10, 25]}
+        {...orders}
         processRowUpdate={async (newRow, oldRow) => {
           if (newRow.status !== oldRow.status) {
             await purchasesApi
@@ -110,7 +111,6 @@ export const History = () => {
         showToolbar
         disableRowSelectionOnClick
         onCellClick={handleCellClick}
-        {...orders}
         sx={{
           "& .MuiDataGrid-columnHeader": {
             fontSize: "1.2rem",

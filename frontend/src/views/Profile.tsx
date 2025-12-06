@@ -64,8 +64,8 @@ export const Profile = () => {
 
     if (allValid) {
       const formData = new FormData();
-      if (fileInputRef.current?.files && fileInputRef.current.files[0]) {
-        formData.append("profile", fileInputRef.current.files[0]); // 'profile' — שם השדה multer מצפה לו
+      if (fileInputRef.current?.files?.[0]) {
+        formData.append("image", fileInputRef.current.files[0]);
       }
 
       // 2) שדות אחרים

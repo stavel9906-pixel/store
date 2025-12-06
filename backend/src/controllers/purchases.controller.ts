@@ -4,6 +4,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
   Param,
@@ -25,18 +26,37 @@ export class PurchasesController {
 
   @Get("pending")
   async getByUser(@Query("id") userId: number) {
-    const purchase = await this.purchasesService.getPendingPurchase(userId);
-    return purchase?.id;
+    try {
+      const purchase = await this.purchasesService.getPendingPurchase(userId);
+      return purchase?.id;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        "Failed to fetch pending purchase"
+      );
+    }
   }
 
   @Get("id")
   async getOrderByIdHandler(@Query("id") id: number) {
-    return await this.purchasesService.getOrderById(id);
+    try {
+      return await this.purchasesService.getOrderById(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      Logger.error(error);
+      throw new InternalServerErrorException("Failed to fetch the order by ID");
+    }
   }
 
   @Get("products/total")
   async getOrderTotalAmount(@Query("id") orderId: number) {
-    return await this.purchasesService.getTotalAmountPurchase(orderId);
+    try {
+      return await this.purchasesService.getTotalAmountPurchase(orderId);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        "Failed to calculate total amount for the order"
+      );
+    }
   }
 
   @Delete(":purchaseId/product/:productId")
@@ -44,17 +64,34 @@ export class PurchasesController {
     @Param("purchaseId") purchaseId: number,
     @Param("productId") productId: number
   ) {
-    return this.purchasesService.deleteProductFromOrder(
-      +purchaseId,
-      +productId
-    );
+    try {
+      return this.purchasesService.deleteProductFromOrder(
+        +purchaseId,
+        +productId
+      );
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      }
+      throw new InternalServerErrorException(
+        "Failed to remove product from purchase"
+      );
+    }
   }
 
   @Get("user")
   async getAllOrdersForUser(@Request() req) {
-    const user = this.usersService.getUserFromToken(req.headers.authorization);
-    console.log(user);
-    return await this.purchasesService.getUserOrdersDetails(user);
+    try {
+      const user = this.usersService.getUserFromToken(
+        req.headers.authorization
+      );
+      return await this.purchasesService.getUserOrdersDetails(user);
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        "Failed to fetch user orders details"
+      );
+    }
   }
 
   @Patch(":id/:status")
@@ -101,10 +138,24 @@ export class PurchasesController {
         +amount
       );
     } catch (error) {
-      Logger.error(error);
+      if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      }
       throw new HttpException(
         "Failed to add product to purchase",
         HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Get("products/best-sellers")
+  async getBestSellerProducts(@Query("amount") amount: number) {
+    try {
+      return await this.purchasesService.findBestSellerProducts(amount);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        "Failed to fetch best seller products"
       );
     }
   }

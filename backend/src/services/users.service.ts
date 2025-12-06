@@ -130,7 +130,7 @@ export class UsersService {
       try {
         const uploaded = await this.cloudinaryService.uploadImage(
           googleProfileUrl,
-          `user_${user.userId}` 
+          `user_${user.userId}`
         );
 
         user.profile = uploaded.secure_url;
@@ -167,9 +167,13 @@ export class UsersService {
         HttpStatus.FORBIDDEN
       );
     }
-
     const token = authHeader.split(" ")[1];
-    return jwt.verify(token, process.env.SECRET_KEY || "default_secret");
+    
+    try {
+      return jwt.verify(token, process.env.SECRET_KEY || "default_secret");
+    } catch (err) {
+      throw new UnauthorizedException("Invalid or expired token");
+    }
   }
 
   async updateUser(newUser: UpdateUserDTO, file?: Express.Multer.File) {

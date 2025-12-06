@@ -6,27 +6,36 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import IconButtonWithBadge from "../components/IconButtonBudget/IconButtonBudget";
 import HistoryIcon from "@mui/icons-material/History";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
-import ChatIcon from '@mui/icons-material/Chat';
+import ChatIcon from "@mui/icons-material/Chat";
+import HomeIcon from "@mui/icons-material/Home";
 
 export const NAVIGATION: Navigation = [
   {
-    kind: "divider"
+    kind: "divider",
+  },
+  {
+    segment: "home",
+    title: " Home",
+    icon: <HomeIcon />,
+  },
+  {
+    kind: "divider",
   },
   {
     kind: "header",
     title: "Main items",
   },
   {
-    segment: "dashboard",
-    title: " Dashboard",
+    segment: "products",
+    title: " Products",
     icon: <DashboardIcon />,
   },
   {
-    segment: "orders",
-    title: "Orders",
+    segment: "order",
+    title: "Order",
     icon: <IconButtonWithBadge />,
   },
-   {
+  {
     kind: "divider",
   },
   {
@@ -44,11 +53,11 @@ export const NAVIGATION: Navigation = [
     icon: <AccountBoxIcon />,
   },
   {
-    kind: "divider"
+    kind: "divider",
   },
   {
     kind: "header",
-    title: "Contact"
+    title: "Contact",
   },
   {
     segment: "chat",

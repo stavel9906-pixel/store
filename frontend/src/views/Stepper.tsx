@@ -19,7 +19,7 @@ const DETAILS_STEP = 1;
 const PAYMENT_STEP = 2;
 const COMPLETED_PAGE = 3;
 
-export default function HorizontalLinearStepper() {
+export const HorizontalLinerStepper: React.FC = () => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<number>());
   const { setOrderId } = useOrderId();
@@ -100,7 +100,7 @@ export default function HorizontalLinearStepper() {
               mt: 2,
             }}
             onClick={() => {
-              navigate("/dashboard");
+              navigate("/home");
               setOrderId(null);
               setProductsAmountCart(0);
             }}

@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { Purchase } from "../utils/types";
+import { Product, Purchase } from "../utils/types";
 import { PurchaseStatus } from "../utils/enums";
 import { HistoryDetailsDTO } from "../utils/DTOs";
 
@@ -85,6 +85,16 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
+      },
+
+      getMostSoldProducts: async (
+        amount: number
+      ): Promise<AxiosResponse<Product[]>> => {
+        return axiosInstance.get("/products/best-sellers",  {
+          params: {
+            amount,
+          },
+        })
       },
     };
   },

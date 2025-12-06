@@ -5,15 +5,20 @@ import Chip from "@mui/joy/Chip";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import * as React from "react";
 import { ProductType } from "../../utils/types";
-import { FC } from "react";
+import { FC, SetStateAction } from "react";
 import { CssVarsProvider } from "@mui/joy/styles";
 import Button from "@mui/joy/Button";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ChipDelete from "@mui/joy/ChipDelete";
+import { useGetIsAdmin } from "../../api/hooks/useGetIsAdmin";
+import adminApi from "../../api/adminApi";
+import Swal from "sweetalert2";
 
 interface CheapListProps {
   productsType: ProductType[];
   selected: string[];
-  setSelected: React.Dispatch<React.SetStateAction<string[]>>;
+  setSelected: React.Dispatch<SetStateAction<string[]>>;
+  setProductsType: React.Dispatch<React.SetStateAction<ProductType[]>>;
 }
 
 const MAX_PRODUCTS_TYPE_LINE = 10;
@@ -22,10 +27,27 @@ export const CheapList: FC<CheapListProps> = ({
   productsType,
   selected,
   setSelected,
+  setProductsType,
 }) => {
   const [expanded, setExpanded] = React.useState(false);
+  const { isAdmin } = useGetIsAdmin();
 
   const visibleCount = expanded ? productsType.length : MAX_PRODUCTS_TYPE_LINE;
+
+  const handleDelete = async (id: number) => {
+    try {
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
+      await adminApi.admin().deleteProductType(token, id);
+      setProductsType((prev) => prev?.filter((type) => type.id !== id) || []);
+    } catch (err) {
+      Swal.fire(
+        "Oops!",
+        "There seems to be a problem deleting the product type. Please try again.",
+        "error"
+      );
+    }
+  };
 
   return (
     <CssVarsProvider>
@@ -42,6 +64,7 @@ export const CheapList: FC<CheapListProps> = ({
               return (
                 <Chip
                   key={name}
+                  endDecorator={isAdmin ? <ChipDelete onDelete={() => handleDelete(id)} /> : null}
                   variant="plain"
                   color={checked ? "primary" : "neutral"}
                   startDecorator={
