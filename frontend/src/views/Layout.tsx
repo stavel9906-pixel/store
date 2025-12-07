@@ -47,11 +47,11 @@ const Layout: FC = () => {
     </Stack>
   );
 
-  useEffect(() => {
-    if (!localStorage.getItem("token") && !sessionStorage.getItem("token")) {
-      navigate("/login");
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   if (!localStorage.getItem("token") && !sessionStorage.getItem("token")) {
+  //     navigate("/login");
+  //   }
+  // }, [navigate]);
 
   return (
     <AppProvider navigation={NAVIGATION}>

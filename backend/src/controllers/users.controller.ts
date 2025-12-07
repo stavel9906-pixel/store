@@ -6,73 +6,25 @@ import {
   HttpStatus,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
   Patch,
-  Post,
   Request,
   UnauthorizedException,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { AuthAndRoleGuard } from "src/auth/jwt-auth.gaurd";
+import { Roles } from "src/auth/roles.decorator";
 import type { UpdateUserDTO } from "src/entities/DTO/updatedUserDTO";
-import { User } from "src/entities/user.entity";
 import { UsersRole } from "src/enums/userRole.enum";
-import { UnauthorizedError } from "src/errors/unauthorizedError";
 import { UsersService } from "src/services/users.service";
 
+@UseGuards(AuthAndRoleGuard)
+@Roles(UsersRole.ADMIN, UsersRole.USER)
 @Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Post("register")
-  async register(@Body() user: User) {
-    const { userName, email, password } = user;
-    try {
-      return this.usersService.register(userName, email, password);
-    } catch (err) {
-      if (err instanceof UnauthorizedError) {
-        throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
-      }
-      throw new HttpException(
-        "Error In Register",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  @Post("signin")
-  async googleSignIn(@Body() user: User) {
-    const { userName, email, profile } = user;
-    try {
-      return this.usersService.googleSignIn(userName, email, profile);
-    } catch (err) {
-      if (err instanceof UnauthorizedError) {
-        throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
-      }
-      throw new HttpException(
-        "Error in signing in with google",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  @Post("login")
-  async login(@Body() user: User) {
-    try {
-      const { email, password } = user;
-
-      return await this.usersService.login(email, password);
-    } catch (err) {
-      if (err instanceof UnauthorizedError) {
-        throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
-      }
-      throw new HttpException(
-        "Error while logging in",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
 
   @Get("profile")
   getProfile(@Request() req) {

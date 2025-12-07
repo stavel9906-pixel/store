@@ -8,11 +8,7 @@ export const useGetIsAdmin = () => {
   useEffect(() => {
     const fetchIsAdmin = async () => {
       try {
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-
-        if(!token) return;
-        
-        const fetchedIsAdmin = (await usersApi.users().isAdmin(token)).data;
+        const fetchedIsAdmin = (await usersApi.users().isAdmin()).data;
         setIsAdmin(fetchedIsAdmin);
       } catch (error: unknown) {
         Swal.fire("Oops!", "There seems to be a problem. Please try again.", "error");

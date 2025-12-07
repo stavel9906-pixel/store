@@ -19,7 +19,7 @@ export class Message {
 
   @ManyToOne(() => User, (user) => user.messages)
   @JoinColumn({ name: "sender_id" })
-  sender: User;
+  sender: User | null;
 
   @Column("text")
   text: string;

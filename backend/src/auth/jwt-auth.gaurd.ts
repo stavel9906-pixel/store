@@ -1,40 +1,38 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException, Logger } from '@nestjs/common';
-import { Request } from 'express';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import * as jwt from 'jsonwebtoken';
 import { UsersRole } from 'src/enums/userRole.enum';
 
 @Injectable()
 export class AuthAndRoleGuard implements CanActivate {
-  constructor(private requiredRoles: UsersRole[] = []) {}
+  constructor(private reflector: Reflector) {} 
 
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest<Request>();
+    const roles = this.reflector.getAllAndOverride<UsersRole[]>('roles', [context.getHandler(), context.getClass()]);
+
+    if (!roles || roles.length === 0) {
+      throw new ForbiddenException('No roles defined for this route');
+    }
+
+    const request = context.switchToHttp().getRequest();
     const authHeader = request.headers['authorization'];
-    if (!authHeader) {
-      Logger.error('Authorization header missing');
-      throw new UnauthorizedException('Authorization header missing');
-    }
+    if (!authHeader) throw new UnauthorizedException('Authorization header missing');
+
     const [bearer, token] = authHeader.split(' ');
-    if (bearer !== 'Bearer' || !token) {
-      Logger.error('Invalid authorization header format');
-      throw new UnauthorizedException('Invalid authorization header format');
-    }
+    if (bearer !== 'Bearer' || !token) throw new UnauthorizedException('Invalid token');
 
     let payload: any;
     try {
       payload = jwt.verify(token, process.env.SECRET_KEY || 'default_secret');
-    } catch (err) {
-      Logger.error('Invalid or expired token');
+    } catch {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    // אם הגארד דורש תפקידים
-    if (this.requiredRoles.length > 0) {
-      if (!payload.role || !this.requiredRoles.includes(payload.role)) {
-        throw new ForbiddenException('Insufficient permissions');
-      }
+    if (!roles.includes(payload.role)) {
+      throw new ForbiddenException('Insufficient permissions');
     }
 
+    request.user = payload;
     return true;
   }
 }

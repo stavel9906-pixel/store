@@ -80,7 +80,6 @@ export const Profile = () => {
           ? localStorage.setItem("token", token)
           : sessionStorage.setItem("token", token);
       } catch (err) {
-        console.log(err);
         Swal.fire(
           "Oops!",
           "The Current Password You Entered Doesn't Match The Old One.",

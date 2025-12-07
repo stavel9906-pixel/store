@@ -20,13 +20,13 @@ import { useEffect, useRef, useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useGoogleLogin } from "@react-oauth/google";
-import usersApi from "../../api/usersApi";
 import { AuthResponse } from "../../utils/types";
 import { AxiosError, AxiosResponse } from "axios";
 import { getGoogleUser } from "./getGoogleSignin";
 import { useNavigate } from "react-router";
 import { authFormFields } from "./authFields";
 import { AuthField } from "../../utils/enums";
+import authApi from "../../api/authApi";
 
 export const Login = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -76,11 +76,11 @@ export const Login = () => {
 
     try {
       if (!password) {
-        response = await usersApi.users().signIn(email, name!, profile);
+        response = await authApi.auth().signIn(email, name!, profile);
       } else if (!name) {
-        response = await usersApi.users().login(email, password);
+        response = await authApi.auth().login(email, password);
       } else {
-        response = await usersApi.users().register(name, email, password);
+        response = await authApi.auth().register(name, email, password);
       }
 
       const token = response?.data.token;

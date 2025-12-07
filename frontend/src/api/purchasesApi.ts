@@ -7,6 +7,16 @@ const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/purchases",
 });
 
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
 export default {
   purchases() {
     return {
@@ -78,12 +88,8 @@ export default {
         axiosInstance.delete(`/${purchaseId}/product/${productId}`),
 
       getOrdersForUser: async (
-        token: string | null
       ): Promise<AxiosResponse<HistoryDetailsDTO[]>> => {
         return axiosInstance.get("/user", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         });
       },
 

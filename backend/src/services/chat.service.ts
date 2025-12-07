@@ -78,7 +78,7 @@ export class ChatService {
   ): Promise<Message> {
     const chat = await this.getChatById(chatId);
     const sender = await this.userRepo.findOne({ where: { userId: senderId } });
-    if (!sender) throw new NotFoundException("Sender not found");
+    // if (!sender) throw new NotFoundException("Sender not found");  not used in chance that it is first message 
 
     const message = this.messageRepo.create({
       chat,

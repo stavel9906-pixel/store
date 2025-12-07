@@ -24,7 +24,7 @@ export const ChatBubble = ({
       }}
     >
       <Avatar
-        src={avatarUrl}
+        src={avatarUrl || ""}
         sx={{ width: 40, height: 40, ml: isOwn ? 1 : 0, mr: isOwn ? 0 : 1 }}
       />
       <Box sx={{ maxWidth: "70%" }}>
@@ -38,7 +38,7 @@ export const ChatBubble = ({
         >
           <Typography
             variant="body2"
-            sx={{ textAlign: "left", display: "block" }}
+            sx={{ textAlign: "left", display: "block", color: !isOwn ? "black" : "white" }}
           >
             {text}
           </Typography>
@@ -49,6 +49,7 @@ export const ChatBubble = ({
             mt: 0.5,
             display: "block",
             textAlign: isOwn ? "right" : "left",
+            color: "black"
           }}
         >
           {timestamp.slice(0,5)}

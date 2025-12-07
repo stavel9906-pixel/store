@@ -9,11 +9,7 @@ export const useGetUserFromToken = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-
-        if(!token) return;
-        
-        const fetchedUser = (await usersApi.users().getProfile(token)).data;
+        const fetchedUser = (await usersApi.users().getProfile()).data;
         setUser(fetchedUser);
       } catch (error: unknown) {
         Swal.fire("Oops!", "There seems to be a problem. Please try again.", "error");

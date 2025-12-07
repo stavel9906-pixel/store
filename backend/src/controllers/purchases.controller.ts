@@ -12,11 +12,17 @@ import {
   Post,
   Query,
   Request,
+  UseGuards,
 } from "@nestjs/common";
+import { AuthAndRoleGuard } from "src/auth/jwt-auth.gaurd";
+import { Roles } from "src/auth/roles.decorator";
 import { PurchaseStatus } from "src/enums/purchaseStatus.enum";
+import { UsersRole } from "src/enums/userRole.enum";
 import { PurchasesService } from "src/services/purchases.service";
 import { UsersService } from "src/services/users.service";
 
+@UseGuards(AuthAndRoleGuard)
+@Roles(UsersRole.ADMIN, UsersRole.USER)
 @Controller("purchases")
 export class PurchasesController {
   constructor(

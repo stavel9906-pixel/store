@@ -75,12 +75,15 @@ export interface PurchaseAddress {
   timeTo?: string;
 }
 
+export type FocusedField = 'number' | 'name' | 'expiry' | 'cvc';
+
 export type FormField = {
   name: string;
   value: string;
   validate: (value: string, formData?: FormField[]) => boolean; 
   errorMessage: string;
   showError: boolean;
+  focusField?: FocusedField;
 };
 
 export interface ChatMessage {

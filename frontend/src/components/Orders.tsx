@@ -68,7 +68,6 @@ export const Orders: FC<OrdersProps> = ({ handleNext }) => {
     try {
       const token =
         localStorage.getItem("token") || sessionStorage.getItem("token");
-      console.log(token)
       await adminApi.admin().updateShippingFee(token, newPrice);
       setShippingFee(newPrice);
       setOpenShippingModal(false);

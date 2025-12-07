@@ -4,7 +4,7 @@ import { History } from "../views/History";
 import { Profile } from "../views/Profile";
 import { ChatPage } from "../views/Chat/Chat";
 import { HorizontalLinerStepper } from "../views/Stepper";
-import { Home } from "../views/Home";
+import { Home } from "../views/Home/Home";
 
 export interface Page {
   path: string;
@@ -47,5 +47,5 @@ export const routes: Page[] = [
     path: "/home",
     element: <Home />,
     name: "home",
-  }
+  },
 ];

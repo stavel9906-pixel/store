@@ -1,16 +1,17 @@
 import Carousel from "react-bootstrap/Carousel";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router";
-import { useGetBestSellers } from "../api/hooks/useGetBestSellers";
-import Card from "react-bootstrap/Card";
+import { useGetBestSellers } from "../../api/hooks/useGetBestSellers";
 import CardGroup from "react-bootstrap/CardGroup";
-import { borderRadius } from "@mui/system";
+import { BestSellerCard } from "../../components/BestSellersCard/BestSellerCard";
 
 const AMOUNT_BEST_SELLER_PRODUCTS = 4;
 
 export const Home = () => {
   const { bestSellers } = useGetBestSellers(AMOUNT_BEST_SELLER_PRODUCTS);
   const navigate = useNavigate();
+  
+
   return (
     <div style={{ position: "relative" }}>
       <div
@@ -83,27 +84,7 @@ export const Home = () => {
           BEST SELLERS
         </h1>
         <CardGroup className="g-4">
-          {bestSellers.map((product) => (
-            <>
-              <Card className="m-4" bg="secondary" style={{borderRadius: "20px"}}>
-                <Card.Img
-                  variant="top"
-                  src={product.imageUrl}
-                  height={"400rem"}
-                  style={{borderRadius: "20px"}}
-                />
-                <Card.Body>
-                  <Card.Title color="light">{product.productName}</Card.Title>
-                  <Card.Text>
-                    ${product.price}
-                  </Card.Text>
-                </Card.Body>
-                <Button color="dark" className="m-4">
-                  ADD TO CART
-                </Button>
-              </Card>
-            </>
-          ))}
+          {bestSellers.map((product) => <BestSellerCard key={product.productId} product={product} />)}
         </CardGroup>
       </div>
     </div>

@@ -22,6 +22,9 @@ const socket: Socket = io("http://localhost:3000", {
   transports: ["websocket"],
 });
 
+const INTIAL_MESSAGE: string =
+  "Hello we are gald that you have chosen to shop from us. Your message is important to us and will respond as soon as posible!";
+
 export const ChatPage = () => {
   const { user } = useGetUserFromToken();
   const [openChats, setOpenChats] = useState<Chat[]>([]);
@@ -43,7 +46,6 @@ export const ChatPage = () => {
 
   useEffect(() => {
     if (!user) return;
-    console.log(user);
 
     socket.emit("identify", { userId: user.id, role: user.role });
 
@@ -107,6 +109,7 @@ export const ChatPage = () => {
 
     setCurrentChat(chat);
     setMessages([]);
+    setText;
 
     socket.emit("joinChat", chat.id);
   };
@@ -117,6 +120,11 @@ export const ChatPage = () => {
 
     socket.emit("openChat", user.id, (chat: Chat) => {
       joinChat(chat);
+      socket.emit("sendMessage", {
+        chatId: chat.id,
+        text: INTIAL_MESSAGE,
+        senderId: 1,
+      });
     });
   };
 
@@ -286,8 +294,8 @@ export const ChatPage = () => {
                       )}
 
                       <ChatBubble
-                        avatarUrl={msg.sender.profile || ""}
-                        name={msg.sender.userName}
+                        avatarUrl={msg.sender?.profile || ""}
+                        name={msg.sender?.userName}
                         text={msg.text}
                         timestamp={new Date(msg.timestamp).toLocaleTimeString(
                           [],
@@ -296,7 +304,7 @@ export const ChatPage = () => {
                             minute: "2-digit",
                           }
                         )}
-                        isOwn={msg.sender.userId === user.id}
+                        isOwn={msg.sender?.userId === user.id}
                       />
                     </div>
                   );
@@ -318,10 +326,20 @@ export const ChatPage = () => {
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       borderRadius: "50px",
-                      borderColor: "black",
+                      "& fieldset": {
+                        borderColor: "black",
+                        color: "black",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "black", // צבע בהובר
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "black", // צבע בפוקוס
+                      },
                     },
                   }}
                 />
+
                 <IconButton onClick={sendMessage}>
                   <SendIcon
                     onClick={sendMessage}

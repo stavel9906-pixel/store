@@ -21,6 +21,7 @@ import { AdminModule } from "./admin.module";
 import { ChatModule } from "src/chat/chat.module";
 import { Chat } from "src/entities/chat.entity";
 import { Message } from "src/entities/messages.entity";
+import { AuthModule } from "./auth.module";
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { Message } from "src/entities/messages.entity";
     ShippingModule,
     AdminModule,
     ChatModule,
+    AuthModule
   ],
 })
 export class AppModule {}

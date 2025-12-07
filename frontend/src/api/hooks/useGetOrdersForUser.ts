@@ -11,10 +11,8 @@ export const useGetOrdersForUser = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const token =
-          localStorage.getItem("token") || sessionStorage.getItem("token");
         const fetchedOrders = (
-          await purchasesApi.purchases().getOrdersForUser(token)
+          await purchasesApi.purchases().getOrdersForUser()
         ).data;
 
         const formattedOrders = fetchedOrders.map(
@@ -24,7 +22,6 @@ export const useGetOrdersForUser = () => {
           })
         );
 
-        console.log(fetchedOrders);
         setOrders(formattedOrders);
       } catch (error: unknown) {
         Swal.fire(

@@ -22,8 +22,8 @@ import { AdminService } from "src/services/admin.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Product } from "src/entities/product.entity";
 
-@UseGuards(new AuthAndRoleGuard([UsersRole.ADMIN]))
 @Roles(UsersRole.ADMIN)
+@UseGuards(AuthAndRoleGuard)
 @Controller("admin")
 export class AdminController {
   constructor(private adminService: AdminService) {}
@@ -107,5 +107,10 @@ export class AdminController {
     } catch (error) {
       throw new InternalServerErrorException("Failed to update shipping fee");
     }
+  }
+
+  @Get("secret")
+  async gedh() {
+    console.log("secret key")
   }
 }

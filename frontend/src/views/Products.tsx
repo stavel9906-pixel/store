@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useGetProducts } from "../api/hooks/useGetProducts";
-import { useNavigate } from "react-router";
 import { ProductCard } from "../components/ProductCard/ProductCard";
 import { Box, Button, IconButton, Tooltip } from "@mui/material";
 import { SearchBar } from "../components/SearchBar";
@@ -21,7 +20,6 @@ export const Products = () => {
   const { products, setProducts } = useGetProducts();
   const { isAdmin } = useGetIsAdmin();
   const { productsType, setProductsType } = useGetProductsType();
-  const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const {
     filteredArray: filteredProducts,
@@ -70,11 +68,7 @@ export const Products = () => {
     }
   };
 
-  useEffect(() => {
-    if (!localStorage.getItem("token") && !sessionStorage.getItem("token")) {
-      navigate("/login");
-    }
-  }, [navigate]);
+
 
   return (
     <div className="mt-4">
