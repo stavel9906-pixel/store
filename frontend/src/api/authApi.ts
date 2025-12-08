@@ -5,16 +5,6 @@ const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/auth",
 });
 
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-});
-
 export default {
   auth() {
     return {
@@ -28,13 +18,10 @@ export default {
           email,
           password,
         }),
-      signIn: (
-        token: string,
-      ): Promise<AxiosResponse<AuthResponse>> =>
+      googleSignIn: (token: string): Promise<AxiosResponse<AuthResponse>> =>
         axiosInstance.post("/google-login", {
           token,
         }),
-
       login: (
         email: string,
         password: string

@@ -53,9 +53,7 @@ export const Products = () => {
 
   const handleRemove = async (productId: number) => {
     try {
-      const token =
-        localStorage.getItem("token") || sessionStorage.getItem("token");
-      await adminApi.admin().deleteProduct(token, productId);
+      await adminApi.admin().deleteProduct(productId);
       setProducts(
         (prev) => prev?.filter((p) => p.productId !== productId) || []
       );
@@ -67,8 +65,6 @@ export const Products = () => {
       );
     }
   };
-
-
 
   return (
     <div className="mt-4">

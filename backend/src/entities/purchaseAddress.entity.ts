@@ -38,11 +38,11 @@ export class PurchaseAddress {
   lastName: string;
 
   @Column({ type: "timestamp", name: "requested_time", nullable: true})
-  requestedDate: Date | null; // תאריך שבו המשתמש רוצה את המשלוח
+  requestedDate: Date | null; 
 
   @Column({ type: "time", name: "time_from", nullable: true })
-  requestedTimeFrom: string | null; // התחלת טווח השעות
+  requestedTimeFrom: string | null;
 
   @Column({ type: "time", name: "time_to", nullable: true })
-  requestedTimeTo: string | null; // סוף טווח השעות
+  requestedTimeTo: string | null; 
 }

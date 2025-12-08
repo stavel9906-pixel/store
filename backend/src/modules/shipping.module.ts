@@ -8,6 +8,6 @@ import { ShippingController } from '../controllers/shipping.controller';
   imports: [TypeOrmModule.forFeature([ShippingConfig])],
   providers: [ShippingService],
   controllers: [ShippingController],
-  exports: [ShippingService],  // מאפשר למודולים אחרים להשתמש בשירות
+  exports: [ShippingService],  
 })
 export class ShippingModule {}

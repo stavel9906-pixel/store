@@ -66,9 +66,7 @@ export const Orders: FC<OrdersProps> = ({ handleNext }) => {
     setShippingFeeError("");
 
     try {
-      const token =
-        localStorage.getItem("token") || sessionStorage.getItem("token");
-      await adminApi.admin().updateShippingFee(token, newPrice);
+      await adminApi.admin().updateShippingFee(newPrice);
       setShippingFee(newPrice);
       setOpenShippingModal(false);
     } catch (err) {
@@ -115,7 +113,7 @@ export const Orders: FC<OrdersProps> = ({ handleNext }) => {
               order.purchaseProducts.map((productPur) => (
                 <CartCard
                   key={productPur.id}
-                  product={productPur}
+                  productPurchase={productPur}
                   setSumPrice={setSumPrice}
                   onRemove={handleRemoveProduct}
                 />
@@ -152,7 +150,10 @@ export const Orders: FC<OrdersProps> = ({ handleNext }) => {
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <Typography variant="h6">
-                  Shipping Fee: <strong>${(isAdmin || !orderId) ? shippingFee : order?.shippingFee}</strong>
+                  Shipping Fee:{" "}
+                  <strong>
+                    ${isAdmin || !orderId ? shippingFee : order?.shippingFee}
+                  </strong>
                   {isAdmin && shippingFee && (
                     <>
                       <Fab
@@ -211,7 +212,8 @@ export const Orders: FC<OrdersProps> = ({ handleNext }) => {
                         open={errorAlert}
                         onClose={() => setErrorAlert(false)}
                         autoHideDuration={3000}
-                        anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                      >
                         <Alert severity="error">
                           Error Accured While Saving New Shipping Fee. Update
                           Failed!

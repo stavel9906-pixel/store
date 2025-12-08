@@ -14,13 +14,12 @@ export class ChatService {
   ) {}
 
   async createChat(userId: number): Promise<Chat> {
-    // לבדוק אם כבר קיים צ'אט פתוח
     let chat = await this.chatRepo.findOne({
       where: { user: { userId: userId }, isOpen: true },
       relations: ["user", "messages", "messages.sender"],
     });
 
-    if (chat) return chat; // ⬅ החזר את הצ'אט הקיים
+    if (chat) return chat; 
 
     const user = await this.userRepo.findOne({ where: { userId: userId } });
     if (!user) throw new NotFoundException("User not found");
@@ -29,7 +28,6 @@ export class ChatService {
     return this.chatRepo.save(chat);
   }
 
-  // All the open chats for admin
   async getChatById(chatId: number): Promise<Chat> {
     const chat = await this.chatRepo.findOne({
       where: { id: chatId },
@@ -46,25 +44,10 @@ export class ChatService {
     });
   }
 
-  //   async getMessagesByChat(chatId: number): Promise<Message[]> {
-  //     const chat = await this.chatRepo.findOne({
-  //       where: { id: chatId },
-  //       relations: ["messages", "messages.sender"],
-  //     });
-
-  //     if (!chat) {
-  //       throw new NotFoundException("Chat not found");
-  //     }
-
-  //     // להחזיר את ההודעות לפי זמן
-  //     return chat.messages.sort((a, b) => a.timestamp - b.timestamp);
-  //   }
-
-  // קבלת ההודעות של צ'אט ספציפי
   async getMessagesByChat(chatId: number): Promise<Message[]> {
     const messages = await this.messageRepo.find({
       where: { chat: { id: chatId } },
-      relations: ["sender", "chat"], // חובה לטעון את השולח והצ'אט
+      relations: ["sender", "chat"], 
       order: { timestamp: "ASC" },
     });
 

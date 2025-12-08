@@ -35,7 +35,6 @@ export class AuthAndRoleGuard implements CanActivate {
     let payload: any;
     try {
       payload = jwt.verify(token, process.env.SECRET_KEY || "default_secret");
-      console.log("🔍 User:", payload);
     } catch {
       throw new UnauthorizedException("Invalid or expired token");
     }

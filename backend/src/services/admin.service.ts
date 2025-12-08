@@ -5,6 +5,9 @@ import { Product } from "src/entities/product.entity";
 import { CloudinaryService } from "./cloudinary.service";
 import { ProductsTypeService } from "./productsType.service";
 import { ShippingService } from "./shipping.service";
+import { ShippingConfig } from "src/entities/shipping-config.entity";
+import { User } from "src/entities/user.entity";
+import { UsersRole } from "src/enums/userRole.enum";
 
 @Injectable()
 export class AdminService {
@@ -14,10 +17,11 @@ export class AdminService {
     private cloudinaryService: CloudinaryService,
     private productTypeService: ProductsTypeService,
     private shippingService: ShippingService,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
   ) {}
 
   async deleteProduct(productId: number) {
-    console.log(productId);
     const result = await this.productRepo
       .createQueryBuilder("product")
       .update(Product)
@@ -101,7 +105,27 @@ export class AdminService {
     return { message: "Product Type successfully deleted" };
   }
 
-  async updateShippingFee(fee: number) {
-    return this.shippingService.setShippingFee(fee);
+  async updateShippingFee(fee: number): Promise<ShippingConfig> {
+    return await this.shippingService.setShippingFee(fee);
+  }
+
+  async getProductsTotalAmount(): Promise<number> {
+    const numberOfProducts = await this.productRepo
+      .createQueryBuilder("pro")
+      .select("COUNT(*)", "products")
+      .where("pro.for_sale = true")
+      .getRawOne();
+
+    return Number(numberOfProducts.products);
+  }
+
+  async getUsersTotalAmount(): Promise<number> {
+    const numberOfUsers = await this.usersRepository
+      .createQueryBuilder("user")
+      .select("COUNT(*)", "users")
+      .where("user.role = :role", {role: UsersRole.USER})
+      .getRawOne();
+
+    return Number(numberOfUsers.users);
   }
 }

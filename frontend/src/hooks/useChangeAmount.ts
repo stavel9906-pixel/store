@@ -16,10 +16,11 @@ export const useChangeAmount = (productId: number) => {
         if (user) {
           if (productsAmountCart === 0 && !orderId) {
             const newOrderId = (await purchasesApi.purchases().create(user.id)).data;
+            await purchasesApi.purchases().changeProductAmount(productId, newOrderId, toAdd);
             setOrderId(newOrderId);
+          } else if (orderId) {
+            await purchasesApi.purchases().changeProductAmount(productId, orderId, toAdd);
           }
-
-          await purchasesApi.purchases().changeProductAmount(productId, orderId!, toAdd);
         }
 
         setProductsAmountCart((prev) => prev + toAdd);

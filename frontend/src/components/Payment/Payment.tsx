@@ -243,7 +243,7 @@ export const CreditCardForm: FC<CreditCardFormProps> = ({ handleNext }) => {
       </Card>
       <Cards
         number={formData[CreditCardField.CARD_NUMBER].value}
-        expiry={formData[CreditCardField.EXPIRY_DATE].value.replace("/", "")} // MMYY
+        expiry={formData[CreditCardField.EXPIRY_DATE].value.replace("/", "")} 
         cvc={formData[CreditCardField.CVC].value}
         name={formData[CreditCardField.CARD_HOLDER_NAME].value}
         focused={focusedField}

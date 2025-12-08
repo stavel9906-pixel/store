@@ -18,28 +18,28 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useProductsAmountCart } from "../../context/ProductsAmountCart";
 
 interface CartCardProps {
-  product: PurchaseProduct;
+  productPurchase: PurchaseProduct;
   setSumPrice: React.Dispatch<React.SetStateAction<number>> | null;
   onRemove: ((productId: number) => void) | null;
 }
 
 export const CartCard: FC<CartCardProps> = ({
-  product,
+  productPurchase,
   setSumPrice,
   onRemove,
 }) => {
-  const [currentAmount, setCurrentAmount] = useState(product.amount);
+  const [currentAmount, setCurrentAmount] = useState(productPurchase.amount);
   const { setProductsAmountCart } = useProductsAmountCart();
 
   useEffect(() => {
-    setCurrentAmount(product.amount);
-  }, [product.amount]);
+    setCurrentAmount(productPurchase.amount);
+  }, [productPurchase.amount]);
 
-  const changeAmount = useChangeAmount(product.product.productId);
+  const changeAmount = useChangeAmount(productPurchase.product.productId);
 
   return (
     <CssVarsProvider>
-      {product.amount > 0 && (
+      {productPurchase.amount > 0 && (
         <Box
           display="flex"
           px={4}
@@ -60,7 +60,7 @@ export const CartCard: FC<CartCardProps> = ({
               overflow: "hidden",
             }}
           >
-            {!product.product.forSale && (
+            {!productPurchase.product.forSale && (
               <Box
                 sx={{
                   position: "absolute",
@@ -88,8 +88,8 @@ export const CartCard: FC<CartCardProps> = ({
               sx={{ width: "10rem" }}
             >
               <img
-                src={product.product.imageUrl}
-                alt={product.product.productName}
+                src={productPurchase.product.imageUrl}
+                alt={productPurchase.product.productName}
               />
             </AspectRatio>
 
@@ -105,7 +105,7 @@ export const CartCard: FC<CartCardProps> = ({
                 level="title-lg"
                 sx={{ fontSize: "2rem", fontWeight: "bold" }}
               >
-                {product.product.productName}
+                {productPurchase.product.productName}
               </Typography>
               <Typography
                 level="body-sm"
@@ -123,7 +123,7 @@ export const CartCard: FC<CartCardProps> = ({
                     overflow: "hidden",
                   }}
                 >
-                  {product.product.description || "Description not available"}
+                  {productPurchase.product.description || "Description not available"}
                 </Link>
               </Typography>
 
@@ -133,13 +133,13 @@ export const CartCard: FC<CartCardProps> = ({
                 size="sm"
                 sx={{ pointerEvents: "none" }}
               >
-                {product.product.productType.name}
+                {productPurchase.product.productType.name}
               </Chip>
               <Typography
                 level="title-lg"
                 sx={{ fontSize: "1.25rem", ml: 1, mt: 1 }}
               >
-                ${product.currentPrice}
+                ${productPurchase.currentPrice}
               </Typography>
             </CardContent>
 
@@ -156,15 +156,15 @@ export const CartCard: FC<CartCardProps> = ({
                   size="lg"
                   sx={{ ml: "auto", mb: "auto" }}
                   onClick={() => {
-                    onRemove(product.product.productId);
-                    setCurrentAmount((curr) => curr - product.amount);
+                    onRemove(productPurchase.product.productId);
+                    setCurrentAmount((curr) => curr - productPurchase.amount);
                     if (setSumPrice) {
                       setSumPrice(
-                        (curr) => curr - product.currentPrice * product.amount
+                        (curr) => curr - productPurchase.currentPrice * productPurchase.amount
                       );
                     }
                     setProductsAmountCart(
-                      (current) => current - product.amount
+                      (current) => current - productPurchase.amount
                     );
                   }}
                 >
@@ -185,7 +185,7 @@ export const CartCard: FC<CartCardProps> = ({
                       changeAmount(-1);
                       if (setSumPrice) {
                         setSumPrice((curr) =>
-                          Number((+curr - +product.currentPrice).toFixed(2))
+                          Number((+curr - +productPurchase.currentPrice).toFixed(2))
                         );
                       }
                       setCurrentAmount((curr) => curr - 1);
@@ -212,7 +212,7 @@ export const CartCard: FC<CartCardProps> = ({
                     if (setSumPrice) {
                       setSumPrice((curr) =>
                         Number(
-                          (+curr + diff * +product.currentPrice).toFixed(2)
+                          (+curr + diff * +productPurchase.currentPrice).toFixed(2)
                         )
                       );
                     }
@@ -227,7 +227,7 @@ export const CartCard: FC<CartCardProps> = ({
                       changeAmount(1);
                       if (setSumPrice) {
                         setSumPrice((curr) =>
-                          Number((+curr + +product.currentPrice).toFixed(2))
+                          Number((+curr + +productPurchase.currentPrice).toFixed(2))
                         );
                       }
                       setCurrentAmount((curr) => curr + 1);

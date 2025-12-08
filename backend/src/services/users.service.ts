@@ -34,7 +34,7 @@ export class UsersService {
       );
     }
     const token = authHeader.split(" ")[1];
-    
+
     try {
       return jwt.verify(token, process.env.SECRET_KEY || "default_secret");
     } catch (err) {
@@ -50,7 +50,6 @@ export class UsersService {
     if (!currentUser) throw new NotFoundException("User not found");
 
     if (currentUser.password) {
-      // אם יש סיסמא קיימת נבדוק התאמה
       const isMatch = await bcrypt.compare(
         newUser.oldPassword,
         currentUser.password
@@ -59,9 +58,10 @@ export class UsersService {
         throw new UnauthorizedException("Current password is incorrect");
     }
 
-    // אם אין סיסמא (Google login) או הסיסמא נכונה, נעדכן
-    const hashedPassword = await bcrypt.hash(newUser.newPassword, 10);
-    currentUser.password = hashedPassword;
+    if (newUser.newPassword) {
+      const hashedPassword = await bcrypt.hash(newUser.newPassword, 10);
+      currentUser.password = hashedPassword;
+    }
 
     if (file) {
       try {
@@ -75,7 +75,6 @@ export class UsersService {
 
     await this.usersRepository.save(currentUser);
 
-    // --- יצירת token חדש ---
     const token = jwt.sign(
       {
         name: currentUser.userName,

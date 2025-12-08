@@ -3,13 +3,15 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-custom';
 import { Request } from 'express';
 import { AuthService } from '../services/auth.service';
+import { UserTokenDTO } from 'src/entities/DTO/UserTokenDTO';
+import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class GoogleTokenStrategy extends PassportStrategy(Strategy, 'google-token') {
   constructor(private authService: AuthService) {
     super();
   }
-  async validate(req: Request): Promise<any> {
+  async validate(req: Request): Promise<User> {
     const token = req.body.token; 
 
     if (!token) {

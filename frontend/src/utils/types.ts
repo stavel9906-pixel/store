@@ -22,7 +22,7 @@ export type Product = {
   price: number;
   description: string;
   productType: ProductType;
-  imageUrl: string; // URL של התמונה ב-Cloudinary
+  imageUrl: string; 
   forSale: boolean;
 };
 

@@ -93,7 +93,7 @@ export class PurchasesController {
       );
       return await this.purchasesService.getUserOrdersDetails(user);
     } catch (error) {
-      console.error(error);
+      Logger.error(error);
       throw new InternalServerErrorException(
         "Failed to fetch user orders details"
       );

@@ -10,7 +10,7 @@ export const Symbol = () => {
         <CardContent sx={{ display: 'flex', flexDirection: "row"}}>
           <CardMedia
         component="img"
-        sx={{ width: 200 }}
+        sx={{ width: "12.5rem" }}
         image="/src/images/icon.webp"
         alt="Live from space album cover"
       />

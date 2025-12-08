@@ -1,6 +1,5 @@
 import {
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from "@nestjs/common";
@@ -207,6 +206,8 @@ export class PurchasesService {
         "purchaseProducts.product.productType",
         "address",
         "user",
+        "address.city",
+        "address.city.country"
       ],
     });
     Logger.log(
@@ -264,6 +265,10 @@ export class PurchasesService {
           ? `${order.address.firstName} ${order.address.lastName}`
           : order.user.userName,
         phone: order.address?.phone ?? "",
+        city: order.address?.city.name,
+        country: order.address?.city.country.name,
+        street: order.address?.street,
+        houseNumber: order.address?.houseNumber,
       };
     });
   }

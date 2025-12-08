@@ -52,8 +52,7 @@ export class UsersController {
   }
 
   @Patch()
-  // FormData.append("profile", file) לוקח את הקובץ הזה מהבקשה
-  @UseInterceptors(FileInterceptor("profile"))
+  @UseInterceptors(FileInterceptor("image"))
   async updateStatus(
     @UploadedFile() file: Express.Multer.File | undefined,
     @Body() user: UpdateUserDTO

@@ -37,10 +37,8 @@ export const TypeForm = ({
 
     setError("");
     try {
-      const token =
-        localStorage.getItem("token") || sessionStorage.getItem("token");
       const productType: ProductType = (
-        await adminApi.admin().addNewProductType(token, newTypeName)
+        await adminApi.admin().addNewProductType(newTypeName)
       ).data;
       setProductType((prev) => [...prev, productType]);
       setNewTypeName("");

@@ -18,10 +18,10 @@ import { PurchaseAddressModule } from "./purchaseAddress.module";
 import { ShippingModule } from "./shipping.module";
 import { ShippingConfig } from "src/entities/shipping-config.entity";
 import { AdminModule } from "./admin.module";
-import { ChatModule } from "src/chat/chat.module";
 import { Chat } from "src/entities/chat.entity";
 import { Message } from "src/entities/messages.entity";
 import { AuthModule } from "./auth.module";
+import { ChatModule } from "./chat.module";
 
 @Module({
   imports: [

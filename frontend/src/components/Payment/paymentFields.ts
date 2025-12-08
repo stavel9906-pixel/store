@@ -23,10 +23,6 @@ export const creditCardFormFields: FormField[] = [
       const now = new Date();
       const currentMonth = now.getMonth() + 1; 
       const currentYear = now.getFullYear() % 100; 
-      console.log(currentMonth);
-      console.log(currentYear);
-      console.log(month);
-      console.log(year)
 
       if (year < currentYear ||
         (year === currentYear && month <= currentMonth))

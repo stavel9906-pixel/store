@@ -46,9 +46,11 @@ export const AddressForm: FC<AddressFormProps> = ({
 
     const newFormData = formData.map((field) => {
       const valid =
-        field.name === "requested Time To"
+        field.name === "requested Time To" ||
+        field.name === "requested Time From"
           ? field.validate(field.value, formData)
           : field.validate(field.value);
+
       if (!valid) allValid = false;
 
       return {

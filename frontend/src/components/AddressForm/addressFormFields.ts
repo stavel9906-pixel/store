@@ -68,9 +68,25 @@ export const formFields: FormField[] = [
   {
     name: "requested Time From",
     value: "",
-    validate: (value: string) => {
+    validate: (value: string, form?: FormField[]) => {
       if (!value) return true; 
-      return /^([0-1]\d|2[0-3]):([0-5]\d)$/.test(value);
+      if (!/^([0-1]\d|2[0-3]):([0-5]\d)$/.test(value)) return false; 
+
+      const dateField = form?.find((f) => f.name === "requested Date");
+      if (!dateField?.value) return true;
+
+      const today = new Date();
+      const selectedDate = new Date(dateField.value);
+
+      if (selectedDate.toDateString() === today.toDateString()) {
+        const [hours, minutes] = value.split(":").map(Number);
+        const valueInMinutes = hours * 60 + minutes;
+        const nowInMinutes = today.getHours() * 60 + today.getMinutes();
+
+        return valueInMinutes > nowInMinutes;
+      }
+
+      return true; 
     },
     errorMessage: "Invalid start time",
     showError: false,

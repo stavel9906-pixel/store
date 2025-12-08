@@ -1,4 +1,3 @@
-// chat.gateway.ts
 import {
   WebSocketGateway,
   WebSocketServer,
@@ -60,17 +59,16 @@ export class ChatGateway {
   @SubscribeMessage("getOpenChats")
   async getOpenChats(@ConnectedSocket() client: Socket) {
     const chat = await this.chatService.getOpenChats();
-        console.log(chat)
     client.emit("openChatsForAdmin", chat);
   }
 
-  @SubscribeMessage("getOpenChatsForUser")
+  @SubscribeMessage("getOpenChatForUser")
   async getUserChat(
     @MessageBody() userId: number,
     @ConnectedSocket() client: Socket
   ) {
     const chat = await this.chatService.getChatsForUser(userId);
-    client.emit("getOpenChatsForUser", chat);
+    client.emit("getOpenChatForUser", chat);
   }
 
   @SubscribeMessage("closeChat")

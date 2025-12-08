@@ -48,11 +48,25 @@ export const Profile = () => {
   const handleSubmit = async () => {
     let allValid = true;
 
+    const bothPasswordsEmpty =
+      form[AuthField.PASSWORD].value === "" &&
+      form[AuthField.CONFIRMED_PASSWORD].value === "";
+
     const newFormData = form.map((field) => {
-      const valid =
-        field.name === "confirmedPassword"
-          ? field.validate(field.value, form)
-          : field.validate(field.value);
+      let valid: boolean = false;
+
+      if (
+        bothPasswordsEmpty &&
+        (field.name === "password" || field.name === "confirmedPassword")
+      ) {
+        valid = true;
+      } else {
+        valid =
+          field.name === "confirmedPassword"
+            ? field.validate(field.value, form)
+            : field.validate(field.value);
+      }
+
       if (!valid) allValid = false;
 
       return {
@@ -68,7 +82,6 @@ export const Profile = () => {
         formData.append("image", fileInputRef.current.files[0]);
       }
 
-      // 2) שדות אחרים
       formData.append("id", user!.id.toString());
       formData.append("name", form[AuthField.USERNAME].value);
       formData.append("oldPassword", form[AuthField.CURRENT_PASSWORD].value);
@@ -117,7 +130,7 @@ export const Profile = () => {
           borderRadius: 3,
         }}
       >
-        {/* LEFT COLUMN: PROFILE IMAGE */}
+        {/* PROFILE IMAGE */}
         <Box
           sx={{
             flex: "0 0 25%",
@@ -129,7 +142,6 @@ export const Profile = () => {
             px: 2,
           }}
         >
-          {/* input לקובץ – מוסתר */}
           <input
             type="file"
             accept="image/*"
@@ -179,7 +191,7 @@ export const Profile = () => {
           </Typography>
         </Box>
 
-        {/* MIDDLE COLUMN: PROFILE SETTINGS */}
+        {/* PROFILE SETTINGS */}
         <Box
           sx={{
             flex: "0 0 45%",

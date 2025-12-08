@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Post,
   Req,
-  Res,
   UseGuards,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
@@ -58,9 +57,7 @@ export class AuthController {
     try {
       const { email, password } = user;
 
-      const result = await this.authService.login(email, password);
-      console.log(result);
-      return result;
+      return await this.authService.login(email, password);
     } catch (err) {
       if (err instanceof UnauthorizedError) {
         throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);

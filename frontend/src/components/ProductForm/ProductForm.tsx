@@ -119,15 +119,10 @@ export const ProductForm = ({
       formData.append("description", form[ProductField.DESCRIPTION].value);
 
       try {
-        const token =
-          localStorage.getItem("token") || sessionStorage.getItem("token");
         if (product) {
-          formData.append(
-            "productId",
-            product ? product.productId.toString() : ""
-          );
+          formData.append("productId", product.productId.toString());
           const updatedProduct: Product = (
-            await adminApi.admin().updateProduct(formData, token)
+            await adminApi.admin().updateProduct(formData)
           ).data;
           setProducts((prev) =>
             prev.map((p) =>
@@ -136,13 +131,13 @@ export const ProductForm = ({
           );
         } else {
           const newProduct: Product = (
-            await adminApi.admin().addProduct(formData, token)
+            await adminApi.admin().addProduct(formData)
           ).data;
           setProducts((prev) => [...prev, newProduct]);
         }
-        setForm(productFormFields.map((f) => ({ ...f, value: "" })));
+        setForm(productFormFields.map((field) => ({ ...field, value: "" }))); // Empty the fields
         if (fileInputRef.current) fileInputRef.current.value = "";
-
+ 
         handleClose();
       } catch (err) {
         setErrorAlert(true);
@@ -243,7 +238,7 @@ export const ProductForm = ({
             )}
           </Box>
 
-          {/* RIGHT SIDE — FORM FIELDS */}
+          {/* FORM FIELDS */}
           <Box className="col-md-6">
             <TextField
               label="Product Name"
@@ -262,7 +257,7 @@ export const ProductForm = ({
                   : ""
               }
               fullWidth
-              sx={{ mt: "3rem" }}
+              sx={{ mt: "3rem", color: "black" }}
             />
 
             <TextField
@@ -315,7 +310,7 @@ export const ProductForm = ({
                 error={form[ProductField.PRICE].showError}
               />
               {form[ProductField.PRICE].showError && (
-                <FormHelperText>
+                <FormHelperText sx={{color: "red"}}>
                   {form[ProductField.PRICE].errorMessage}
                 </FormHelperText>
               )}

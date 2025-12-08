@@ -6,7 +6,7 @@ export const authFormFields: FormField[] = [
     name: "username",
     value: "",
     validate: (value: string) => value.trim().length >= 3,
-  errorMessage: "Username must contain at least 3 characters",
+    errorMessage: "Username must contain at least 3 characters",
     showError: false,
   },
   {
@@ -46,8 +46,7 @@ export const authFormFields: FormField[] = [
     name: "currentPassword",
     value: "",
     validate: () => true,
-    errorMessage:
-      "",
+    errorMessage: "",
     showError: false,
   },
 ];

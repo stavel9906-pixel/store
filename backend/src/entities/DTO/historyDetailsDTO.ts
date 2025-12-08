@@ -13,4 +13,8 @@ export type HistoryDetailsDTO = {
   userId: number;
   userName: string;
   phone: string;
+  country: string;
+  city: string;
+  street: string;
+  houseNumber: string;
 };

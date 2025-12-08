@@ -42,7 +42,7 @@ export const ProductCard: FC<ProductCardProps> = ({
   return (
     <Card
       sx={{
-        width: 320,
+        width: "20rem",
         m: 2,
         position: "relative",
         flexWrap: "wrap",

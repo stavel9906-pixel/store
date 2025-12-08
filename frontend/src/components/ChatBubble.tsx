@@ -49,7 +49,6 @@ export const ChatBubble = ({
             mt: 0.5,
             display: "block",
             textAlign: isOwn ? "right" : "left",
-            color: "black"
           }}
         >
           {timestamp.slice(0,5)}

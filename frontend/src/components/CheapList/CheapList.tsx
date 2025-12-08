@@ -36,9 +36,7 @@ export const CheapList: FC<CheapListProps> = ({
 
   const handleDelete = async (id: number) => {
     try {
-      const token =
-        localStorage.getItem("token") || sessionStorage.getItem("token");
-      await adminApi.admin().deleteProductType(token, id);
+      await adminApi.admin().deleteProductType(id);
       setProductsType((prev) => prev?.filter((type) => type.id !== id) || []);
     } catch (err) {
       Swal.fire(

@@ -36,7 +36,6 @@ export const Login = () => {
   const toRemember = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState(authFormFields);
 
-
   useEffect(() => {
     if (localStorage.getItem("token") || sessionStorage.getItem("token")) {
       window.location.href = `${BASE_URL_FRONT}/home`;
@@ -46,7 +45,9 @@ export const Login = () => {
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await authApi.auth().signIn(tokenResponse.access_token);
+        const res = await authApi
+          .auth()
+          .googleSignIn(tokenResponse.access_token);
 
         const finalToken = res.data.token;
 
@@ -71,9 +72,9 @@ export const Login = () => {
   };
 
   const handleLoginRegister = async (
-    name: string | undefined,
     email: string,
-    password: string
+    password: string,
+    name?: string
   ) => {
     let response: AxiosResponse<AuthResponse>;
 
@@ -84,15 +85,14 @@ export const Login = () => {
         response = await authApi.auth().register(name, email, password);
       }
 
-      const token = response?.data.token;
-      console.log(response.data);
+      const token = response.data.token;
 
       toRemember.current?.checked
         ? localStorage.setItem("token", token)
         : sessionStorage.setItem("token", token);
 
       window.location.href = `${BASE_URL_FRONT}/home`;
-    } catch (err: unknown) {
+    } catch (err) {
       const error = err as AxiosError<{ message: string }>;
       setErrorAlert(true);
       setErrorDetails(
@@ -103,7 +103,7 @@ export const Login = () => {
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  const handleValidation = () => {
+  const handleSubmit = () => {
     let allValid = true;
 
     const newFormData = formData.map((field) => {
@@ -122,9 +122,9 @@ export const Login = () => {
 
     if (allValid) {
       handleLoginRegister(
-        newFormData[AuthField.USERNAME].value,
         newFormData[AuthField.EMAIL].value,
-        newFormData[AuthField.PASSWORD].value
+        newFormData[AuthField.PASSWORD].value,
+        newFormData[AuthField.USERNAME].value
       );
     } else if (
       isLogin &&
@@ -132,7 +132,6 @@ export const Login = () => {
       !newFormData[AuthField.PASSWORD].showError
     ) {
       handleLoginRegister(
-        undefined,
         newFormData[AuthField.EMAIL].value,
         newFormData[AuthField.PASSWORD].value
       );
@@ -320,7 +319,7 @@ export const Login = () => {
           variant="contained"
           sx={{ backgroundColor: "#000cb1ff", fontSize: 20 }}
           className="col-md-2 mt-3"
-          onClick={handleValidation}
+          onClick={handleSubmit}
         >
           {isLogin ? "Login" : "register"}
         </Button>

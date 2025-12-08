@@ -109,8 +109,25 @@ export class AdminController {
     }
   }
 
-  @Get("secret")
-  async gedh() {
-    console.log("secret key")
+  @Get("products/amount")
+  async getProductsAmount() {
+    try {
+      return this.adminService.getProductsTotalAmount();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        "Failed to get products amount"
+      );
+    }
+  }
+
+  @Get("users/amount")
+  async getUsersAmount() {
+    try {
+      return this.adminService.getUsersTotalAmount();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        "Failed to get users amount"
+      );
+    }
   }
 }

@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import purchasesApi from "../purchasesApi";
 import { useOrderId } from "../../context/OrderId";
 import { Purchase } from "../../utils/types";
-// בשביל כמה שפחות לגשת לדי בי בשביל לחלץ הצפנה של יוזר
+
 export const useGetOrderById = () => {
   const { orderId } = useOrderId();
   const [order, setOrder] = useState<Purchase | null>(null);

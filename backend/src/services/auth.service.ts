@@ -8,6 +8,7 @@ import * as bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { CloudinaryService } from "./cloudinary.service";
 import axios from "axios";
+import { UserTokenDTO } from "src/entities/DTO/UserTokenDTO";
 
 @Injectable()
 export class AuthService {
@@ -67,7 +68,6 @@ export class AuthService {
 
     const isValid = await bcrypt.compare(password || "", user.password || "");
     if (!isValid) {
-      //!password לא נחשב כי הוא כנראה נכנס הפעם מגוגל ואם לא היה מכניס סיסמא לא היה מגיע לפה בכלל
       throw new UnauthorizedError("Invalid Password For This User");
     }
 
@@ -80,7 +80,7 @@ export class AuthService {
     };
   }
 
-  async validateGoogleUser(accessToken: string): Promise<any> {
+  async validateGoogleUser(accessToken: string): Promise<User> {
     try {
       // Verify token with Google
       const googleResponse = await axios.get(
@@ -92,7 +92,7 @@ export class AuthService {
 
       const { email, name, picture } = googleResponse.data;
 
-      // 2. Find or Create User
+      // Find or Create User
       let user = await this.usersRepository.findOne({ where: { email } });
 
       if (!user) {
@@ -105,7 +105,7 @@ export class AuthService {
         await this.usersRepository.save(user);
       }
 
-      // 3. Upload image to Cloudinary if needed (Optional: check if already has one)
+      // Upload image to Cloudinary if needed 
       if (picture && !user.profile?.includes("cloudinary")) {
         try {
           const uploaded = await this.cloudinaryService.uploadImage(
@@ -139,7 +139,6 @@ export class AuthService {
       process.env.SECRET_KEY!
     );
 
-    console.log(token);
     return token
   }
 }
