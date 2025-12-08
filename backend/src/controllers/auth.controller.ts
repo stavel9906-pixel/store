@@ -1,10 +1,15 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
+  Req,
+  Res,
+  UseGuards,
 } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 import { User } from "src/entities/user.entity";
 import { UnauthorizedError } from "src/errors/unauthorizedError";
 import { AuthService } from "src/services/auth.service";
@@ -17,7 +22,7 @@ export class AuthController {
   async register(@Body() user: User) {
     const { userName, email, password } = user;
     try {
-      return this.authService.register(userName, email, password);
+      return await this.authService.register(userName, email, password);
     } catch (err) {
       if (err instanceof UnauthorizedError) {
         throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
@@ -29,17 +34,20 @@ export class AuthController {
     }
   }
 
-  @Post("signin")
-  async googleSignIn(@Body() user: User) {
-    const { userName, email, profile } = user;
+  @Post("google-login")
+  @UseGuards(AuthGuard("google-token")) 
+  async googleLogin(@Req() req: any) {
     try {
-      return this.authService.googleSignIn(userName, email, profile);
+      const jwt = await this.authService.generateToken(req.user);
+      return {
+        token: jwt,
+      };
     } catch (err) {
       if (err instanceof UnauthorizedError) {
         throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
       }
       throw new HttpException(
-        "Error in signing in with google",
+        "Error signing in with Google",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -50,7 +58,9 @@ export class AuthController {
     try {
       const { email, password } = user;
 
-      return await this.authService.login(email, password);
+      const result = await this.authService.login(email, password);
+      console.log(result);
+      return result;
     } catch (err) {
       if (err instanceof UnauthorizedError) {
         throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);

@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  Logger,
-} from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/entities/user.entity";
 import { UsersRole } from "src/enums/userRole.enum";
@@ -10,6 +7,7 @@ import { Repository } from "typeorm";
 import * as bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { CloudinaryService } from "./cloudinary.service";
+import axios from "axios";
 
 @Injectable()
 export class AuthService {
@@ -51,15 +49,7 @@ export class AuthService {
       await this.usersRepository.save(user);
     }
 
-    const token = jwt.sign(
-      {
-        name: user.userName,
-        role: user.role,
-        id: user.userId,
-        email: user.email,
-      },
-      process.env.SECRET_KEY
-    );
+    const token = await this.generateToken(user);
     Logger.log(`User registered: ${email}`);
 
     return {
@@ -81,16 +71,7 @@ export class AuthService {
       throw new UnauthorizedError("Invalid Password For This User");
     }
 
-    const token = jwt.sign(
-      {
-        name: user.userName,
-        role: user.role,
-        id: user.userId,
-        email: user.email,
-        profile: user.profile,
-      },
-      process.env.SECRET_KEY
-    );
+    const token = await this.generateToken(user);
     Logger.log(`User logged in: ${email}`);
 
     return {
@@ -99,55 +80,66 @@ export class AuthService {
     };
   }
 
-  async googleSignIn(
-    email: string,
-    userName: string,
-    googleProfileUrl: string | undefined
-  ): Promise<any> {
-    let user = await this.usersRepository.findOne({ where: { email } });
+  async validateGoogleUser(accessToken: string): Promise<any> {
+    try {
+      // Verify token with Google
+      const googleResponse = await axios.get(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
 
-    if (!user) {
-      user = this.usersRepository.create({
-        userName,
-        email,
-        role: UsersRole.USER,
-        profile: googleProfileUrl,
-      });
+      const { email, name, picture } = googleResponse.data;
 
-      await this.usersRepository.save(user);
-    }
+      // 2. Find or Create User
+      let user = await this.usersRepository.findOne({ where: { email } });
 
-    if (googleProfileUrl) {
-      try {
-        const uploaded = await this.cloudinaryService.uploadImage(
-          googleProfileUrl,
-          `user_${user.userId}`
-        );
-
-        user.profile = uploaded.secure_url;
-
+      if (!user) {
+        user = this.usersRepository.create({
+          userName: name,
+          email,
+          role: UsersRole.USER,
+          profile: picture,
+        });
         await this.usersRepository.save(user);
-      } catch (err) {
-        Logger.error("Cloudinary upload failed:", err);
       }
-    }
 
+      // 3. Upload image to Cloudinary if needed (Optional: check if already has one)
+      if (picture && !user.profile?.includes("cloudinary")) {
+        try {
+          const uploaded = await this.cloudinaryService.uploadImage(
+            picture,
+            `user_${user.userId}`
+          );
+          user.profile = uploaded.secure_url;
+          await this.usersRepository.save(user);
+        } catch (err) {
+          Logger.error("Cloudinary upload failed", err);
+        }
+      }
+      Logger.log(`User signed in with google: ${email}`);
+
+      return user;
+    } catch (error) {
+      Logger.error(error);
+      throw new UnauthorizedError("Invalid Google Token");
+    }
+  }
+
+  async generateToken(user: User): Promise<string> {
     const token = jwt.sign(
       {
-        name: userName,
+        name: user.userName,
         role: user.role,
         id: user.userId,
+        email: user.email,
         profile: user.profile,
-        email,
       },
-      process.env.SECRET_KEY
+      process.env.SECRET_KEY!
     );
 
-    Logger.log(`User signed in with google: ${email}`);
-
-    return {
-      message: "Sign in successful",
-      token,
-    };
+    console.log(token);
+    return token
   }
 }

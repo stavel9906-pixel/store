@@ -1,23 +1,25 @@
 import { useEffect, useState } from "react";
-import Swal from "sweetalert2";
 import { User } from "../../utils/types";
 import usersApi from "../usersApi";
 
 export const useGetUserFromToken = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
+      setLoadingUser(true);
       try {
         const fetchedUser = (await usersApi.users().getProfile()).data;
         setUser(fetchedUser);
       } catch (error: unknown) {
-        Swal.fire("Oops!", "There seems to be a problem. Please try again.", "error");
+        setUser(null)
       }
+      setLoadingUser(false);
     };
 
     fetchUser();
   }, []);
 
-  return { user, setUser };
+  return { user, setUser, loadingUser };
 };

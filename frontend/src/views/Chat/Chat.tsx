@@ -186,7 +186,7 @@ export const ChatPage = () => {
           gap={2}
         >
           {/* SIDEBAR */}
-          <Paper sx={{ width: 250, p: 1, height: "70vh", overflowY: "auto" }}>
+          <Paper sx={{ width: "16rem", p: 1, height: "80vh", overflowY: "auto" }}>
             {user.role === UsersRole.USER && currentChat && (
               <>
                 <Typography
@@ -256,19 +256,19 @@ export const ChatPage = () => {
           </Paper>
 
           {/* MAIN CHAT */}
-          {currentChat && (
             <Paper
               sx={{
                 flex: 1,
                 p: 2,
-                height: "70vh",
+                height: "80vh",
                 display: "flex",
                 flexDirection: "column",
                 bgcolor: "#f6f6f6ff",
                 borderRadius: "40px",
               }}
             >
-              <Box sx={{ flex: 1, overflowY: "auto", mb: 2 }}>
+             {!currentChat && <Typography sx={{margin: "auto", fontWeight: "bold", fontSize: "2rem"}}>Choose A Chat To Help Them!</Typography>}
+             {currentChat && ( <><Box sx={{ flex: 1, overflowY: "auto", mb: 2 }}>
                 {messages.map((msg, index) => {
                   const prevMsg = messages[index - 1];
                   const currentLabel = getDateLabel(msg.timestamp);
@@ -331,10 +331,10 @@ export const ChatPage = () => {
                         color: "black",
                       },
                       "&:hover fieldset": {
-                        borderColor: "black", // צבע בהובר
+                        borderColor: "black",
                       },
                       "&.Mui-focused fieldset": {
-                        borderColor: "black", // צבע בפוקוס
+                        borderColor: "black", 
                       },
                     },
                   }}
@@ -347,8 +347,10 @@ export const ChatPage = () => {
                   />
                 </IconButton>
               </Box>
+              </>
+              )}
             </Paper>
-          )}
+          
         </Box>
       )}
     </Container>

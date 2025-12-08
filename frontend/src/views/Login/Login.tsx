@@ -22,11 +22,11 @@ import PersonIcon from "@mui/icons-material/Person";
 import { useGoogleLogin } from "@react-oauth/google";
 import { AuthResponse } from "../../utils/types";
 import { AxiosError, AxiosResponse } from "axios";
-import { getGoogleUser } from "./getGoogleSignin";
-import { useNavigate } from "react-router";
 import { authFormFields } from "./authFields";
 import { AuthField } from "../../utils/enums";
 import authApi from "../../api/authApi";
+
+const BASE_URL_FRONT = "http://localhost:5173";
 
 export const Login = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -36,27 +36,31 @@ export const Login = () => {
   const toRemember = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState(authFormFields);
 
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (localStorage.getItem("token") || sessionStorage.getItem("token")) {
-      navigate("/home");
+      window.location.href = `${BASE_URL_FRONT}/home`;
     }
-  }, [navigate]);
+  }, []);
 
-  const login = useGoogleLogin({
+  const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      const googleUser = await getGoogleUser(tokenResponse.access_token);
-      handleLoginRegister(
-        googleUser.name,
-        googleUser.email,
-        undefined,
-        googleUser.picture
-      );
-    },
-    onError: () => {
-      setErrorAlert(true);
-      setErrorDetails("Signing In With Google Failed");
+      try {
+        const res = await authApi.auth().signIn(tokenResponse.access_token);
+
+        const finalToken = res.data.token;
+
+        if (toRemember.current?.checked) {
+          localStorage.setItem("token", finalToken);
+        } else {
+          sessionStorage.setItem("token", finalToken);
+        }
+
+        window.location.href = `${BASE_URL_FRONT}/home`;
+      } catch (err) {
+        setErrorAlert(true);
+        setErrorDetails("Sign in from google failed");
+      }
     },
   });
 
@@ -69,27 +73,25 @@ export const Login = () => {
   const handleLoginRegister = async (
     name: string | undefined,
     email: string,
-    password?: string | undefined,
-    profile?: string
+    password: string
   ) => {
     let response: AxiosResponse<AuthResponse>;
 
     try {
-      if (!password) {
-        response = await authApi.auth().signIn(email, name!, profile);
-      } else if (!name) {
+      if (!name) {
         response = await authApi.auth().login(email, password);
       } else {
         response = await authApi.auth().register(name, email, password);
       }
 
       const token = response?.data.token;
+      console.log(response.data);
 
       toRemember.current?.checked
         ? localStorage.setItem("token", token)
         : sessionStorage.setItem("token", token);
 
-      navigate("/home");
+      window.location.href = `${BASE_URL_FRONT}/home`;
     } catch (err: unknown) {
       const error = err as AxiosError<{ message: string }>;
       setErrorAlert(true);
@@ -333,7 +335,7 @@ export const Login = () => {
 
       <button
         className="btn btn-lg d-flex mx-auto b-2 btn-outline-dark"
-        onClick={() => login()}
+        onClick={() => googleLogin()}
       >
         <CardMedia
           component="img"

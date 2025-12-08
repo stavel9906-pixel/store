@@ -29,14 +29,10 @@ export default {
           password,
         }),
       signIn: (
-        name: string,
-        email: string,
-        profile: string | undefined
+        token: string,
       ): Promise<AxiosResponse<AuthResponse>> =>
-        axiosInstance.post("/signin", {
-          userName: name,
-          email,
-          profile,
+        axiosInstance.post("/google-login", {
+          token,
         }),
 
       login: (
