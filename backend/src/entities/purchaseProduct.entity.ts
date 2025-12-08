@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Purchase } from './purchase.entity';
 import { Product } from './product.entity';
 
@@ -8,14 +8,16 @@ export class PurchaseProduct {
   id!: number;
 
   @ManyToOne(() => Purchase, (purchase) => purchase.purchaseProducts, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: "purchase_id" })
   purchase!: Purchase;
 
   @ManyToOne(() => Product)
+  @JoinColumn({ name: "product_id" })
   product!: Product;
 
   @Column({ type: 'int' })
   amount!: number;
 
-  @Column({ type: 'numeric' })
+  @Column({ name: 'current_price', type: "numeric" })
   currentPrice!: number;
 }
